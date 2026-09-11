@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flori | Criar conta</title>
+
+<!-- Fontes do Google Fonts usadas pela identidade visual (títulos e texto) -->
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Framework Bootstrap, usado para grid, botões e estilos base -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link href="style.css" rel="stylesheet">
+
+</head>
+<body>
+
+<!-- .container: classe do Bootstrap que centraliza o conteúdo e aplica margens/padding responsivos -->
+<div class="container">
+  <!-- Link para voltar à página inicial. mt-3: utilitário de espaçamento (margin-top) do Bootstrap -->
+  <a href="index.html" class="flori-nav-back mt-3">&larr; Voltar</a>
+
+  <!-- Cartão branco que contém todo o formulário de cadastro -->
+  <div class="flori-card">
+    <!-- Barra de progresso do fluxo de cadastro (aqui fixa em 100%, pois é a única etapa) -->
+    <div class="flori-progress"><div class="flori-progress-bar" style="width: 100%;"></div></div>
+
+    <!-- mb-1/mb-4: utilitários de espaçamento (margin-bottom) do Bootstrap -->
+    <h1 class="flori-heading mb-1" style="font-size: 1.6rem;">Vamos te conhecer</h1>
+    <p class="flori-hint mb-4">É rapidinho, leva menos de 2 minutos.</p>
+
+    <!-- Formulário de cadastro. novalidate desativa a validação nativa do navegador,
+         pois a validação customizada é feita em cadastro.js -->
+    <form id="formCadastro" novalidate>
+
+      <!-- Nome e sobrenome, lado a lado. mb-3: utilitário de espaçamento (margin-bottom) do Bootstrap -->
+      <div class="mb-3">
+        <!-- form-label: classe do Bootstrap para estilizar rótulos de formulário -->
+        <label class="form-label" for="nome">Como você se chama?</label>
+        <!-- row/g-2: classes do Bootstrap (sistema de grid) que criam uma linha com gutter (espaçamento) entre colunas -->
+        <div class="row g-2">
+          <!-- col-6: classe do Bootstrap (grid) que ocupa 6 de 12 colunas (metade da largura) -->
+          <div class="col-6">
+            <!-- form-control: classe do Bootstrap que estiliza campos de input -->
+            <input type="text" class="form-control" id="nome" placeholder="Nome" required>
+          </div>
+          <div class="col-6">
+            <input type="text" class="form-control" id="sobrenome" placeholder="Sobrenome" required>
+          </div>
+        </div>
+      </div>
+
+      <!-- Apelido, usado para exibir o nome dentro do app -->
+      <div class="mb-3">
+        <label class="form-label" for="apelido">Como prefere ser chamada por aqui?</label>
+        <input type="text" class="form-control" id="apelido" placeholder="Apelido (opcional)">
+        <div class="flori-hint">É esse nome que vai aparecer pra você dentro do Flori.</div>
+      </div>
+
+      <!-- Data de nascimento: usada para verificar a idade mínima (ver cadastro.js) -->
+      <div class="mb-3">
+        <label class="form-label" for="dataNascimento">Quando você nasceu?</label>
+        <input type="date" class="form-control" id="dataNascimento" required>
+        <!-- Mensagem de erro exibida se a idade não for válida no envio do formulário -->
+        <div class="flori-error" id="erroIdade"></div>
+        <!-- Aviso exibido em tempo real (via JS) quando a idade informada é menor que a mínima -->
+        <div class="flori-age-block" id="blocoIdade">
+          Ainda não é a sua vez de usar o Flori sozinha, volte em breve!
+        </div>
+      </div>
+
+      <!-- Forma de contato: e-mail e/ou celular (pelo menos um é obrigatório). mb-2: utilitário de espaçamento (margin-bottom) do Bootstrap -->
+      <div class="mb-3">
+        <label class="form-label">Como você quer entrar no Flori?</label>
+        <input type="email" class="form-control mb-2" id="email" placeholder="E-mail">
+        <input type="tel" class="form-control" id="celular" placeholder="Celular">
+        <div class="flori-hint">Preencha pelo menos um dos dois.</div>
+        <div class="flori-error" id="erroContato">Preenche o e-mail ou o celular pra gente continuar.</div>
+      </div>
+
+      <!-- Campo de senha, com indicador visual de força preenchido via JS -->
+      <div class="mb-3">
+        <label class="form-label" for="senha">Crie uma senha</label>
+        <input type="password" class="form-control" id="senha" placeholder="Mínimo 8 caracteres" required>
+        <div class="flori-strength"><div class="flori-strength-bar" id="barraForca"></div></div>
+        <div class="flori-error" id="erroSenha">A senha precisa ter pelo menos 8 caracteres.</div>
+      </div>
+
+      <!-- Confirmação de senha, comparada com o campo acima -->
+      <div class="mb-3">
+        <label class="form-label" for="confirmarSenha">Confirme a senha</label>
+        <input type="password" class="form-control" id="confirmarSenha" required>
+        <div class="flori-error" id="erroConfirmarSenha">As senhas não são iguais.</div>
+      </div>
+
+      <!-- Checkbox obrigatório de aceite dos termos de uso. form-check/form-check-input/form-check-label: classes do Bootstrap para estilizar checkboxes -->
+      <div class="form-check mb-4">
+        <input class="form-check-input" type="checkbox" id="termos" required>
+        <label class="form-check-label flori-hint" for="termos">
+          Li e aceito os <a href="/termos" target="_blank">termos de uso e a política de privacidade</a>
+        </label>
+        <div class="flori-error" id="erroTermos">Precisamos que você aceite os termos pra continuar.</div>
+      </div>
+
+      <!-- Botão de envio do formulário. btn: classe base de botão do Bootstrap (combinada com btn-flori, estilo próprio) -->
+      <button type="submit" class="btn btn-flori">Criar minha conta</button>
+
+      <!-- Mensagem de sucesso, oculta por padrão e exibida via JS após o cadastro. alert/alert-success: classes do Bootstrap para caixas de mensagem -->
+      <div id="toastSucesso" class="alert alert-success mt-3" role="alert" style="display:none;">
+        Conta criada!
+      </div>
+
+      <!-- Link para quem já tem conta. text-center: utilitário do Bootstrap para centralizar texto -->
+      <p class="flori-hint text-center mt-3">
+        Já tem conta? <a href="login.html" style="color: var(--flori-title); font-weight: 600;">Entrar</a>
+      </p>
+    </form>
+  </div>
+</div>
+
+<!-- Script com a lógica de validação e envio do formulário de cadastro -->
+<script src="cadastro.js"></script>
+
+</body>
+</html>

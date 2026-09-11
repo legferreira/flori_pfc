@@ -1,0 +1,293 @@
+/* Flori — Identidade visual compartilhada
+   Importar nas páginas junto com o Bootstrap:
+   <link href="style.css" rel="stylesheet">
+*/
+
+/* Variáveis globais de cor da marca Flori, reutilizadas em todo o site */
+:root {
+  --flori-bg: #FDFBF5;      /* cor de fundo padrão das páginas */
+  --flori-card: #EDBFD8;    /* rosa usado nos cartões/elementos decorativos */
+  --flori-accent: #CDD98D;  /* verde claro de destaque (ex: foco em campos) */
+  --flori-cta: #C9E372;     /* verde vibrante usado nos botões de ação principal */
+  --flori-title: #3E2F59;   /* roxo escuro usado em títulos e textos */
+}
+
+/* Estilo base do corpo da página: fundo, fonte e cor de texto padrão */
+body {
+  background-color: var(--flori-bg);
+  font-family: 'Inter', sans-serif;
+  color: var(--flori-title);
+  min-height: 100vh;
+}
+
+/* Títulos e elementos com a classe .flori-heading usam a fonte de destaque da marca */
+h1, h2, h3, .flori-heading {
+  font-family: 'Baloo 2', sans-serif;
+}
+
+/* ---------- Navegação ---------- */
+
+/* Link de "voltar" no topo das páginas internas (ex: "← Voltar") */
+.flori-nav-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--flori-title);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  min-height: 44px; /* garante área de toque confortável em telas de celular */
+}
+
+/* Efeito sutil de opacidade ao passar o mouse sobre o link de voltar */
+.flori-nav-back:hover {
+  color: var(--flori-title);
+  opacity: 0.75;
+}
+
+/* ---------- Cartão padrão (formulários) ---------- */
+
+/* Cartão branco arredondado que envolve os formulários (cadastro/login) */
+.flori-card {
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 4px 24px rgba(62, 47, 89, 0.08);
+  max-width: 460px;
+  margin: 1.5rem auto 3rem; /* centraliza o cartão na página */
+}
+
+/* Trilho (fundo) da barra de progresso do formulário de cadastro */
+.flori-progress {
+  height: 4px;
+  background-color: #eee;
+  border-radius: 2px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+/* Preenchimento da barra de progresso (a largura é definida via inline style no HTML) */
+.flori-progress-bar {
+  height: 100%;
+  background-color: var(--flori-cta);
+}
+
+/* ---------- Campos ---------- */
+
+/* Rótulos (labels) dos campos de formulário */
+.form-label {
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+/* Estilo padrão dos inputs e selects do Bootstrap, adaptado à identidade Flori */
+.form-control, .form-select {
+  min-height: 44px; /* área de toque confortável em telas de celular */
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+/* Destaque visual (borda + sombra) quando um campo está em foco */
+.form-control:focus, .form-select:focus {
+  border-color: var(--flori-accent);
+  box-shadow: 0 0 0 3px rgba(205, 217, 141, 0.35);
+}
+
+/* Texto de ajuda/dica pequeno abaixo dos campos */
+.flori-hint {
+  font-size: 0.85rem;
+  color: #6b6b6b;
+  margin-top: 0.25rem;
+}
+
+/* Mensagem de erro de validação, oculta por padrão (exibida via JS quando necessário) */
+.flori-error {
+  font-size: 0.85rem;
+  color: #b3261e;
+  margin-top: 0.25rem;
+  display: none;
+}
+
+/* Trilho (fundo) da barra de força da senha */
+.flori-strength {
+  height: 6px;
+  border-radius: 3px;
+  background-color: #eee;
+  margin-top: 0.4rem;
+  overflow: hidden;
+}
+
+/* Preenchimento da barra de força da senha — largura e cor são controladas via JS (cadastro.js) */
+.flori-strength-bar {
+  height: 100%;
+  width: 0%;
+  background-color: #b3261e;
+  transition: width 0.2s ease, background-color 0.2s ease; /* anima a mudança suavemente */
+}
+
+/* Bloco de aviso exibido quando a idade informada é menor que a mínima permitida */
+.flori-age-block {
+  display: none; /* fica oculto até o JS decidir mostrá-lo */
+  background-color: #fff4f4;
+  border: 1px solid #f3caca;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}
+
+/* ---------- Botões ---------- */
+
+/* Botão principal de ação (ex: "Criar minha conta", "Entrar") */
+.btn-flori {
+  background-color: var(--flori-cta);
+  color: var(--flori-title);
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  min-height: 44px;
+  width: 100%;
+}
+
+/* Cor levemente mais escura ao passar o mouse sobre o botão principal */
+.btn-flori:hover {
+  background-color: #bcd964;
+  color: var(--flori-title);
+}
+
+/* Botão secundário/contorno (ex: "Já tenho conta") */
+.btn-flori-outline {
+  background-color: transparent;
+  color: var(--flori-title);
+  font-weight: 600;
+  border: 1.5px solid var(--flori-title);
+  border-radius: 12px;
+  min-height: 44px;
+  width: 100%;
+}
+
+/* Fundo levemente colorido ao passar o mouse sobre o botão de contorno */
+.btn-flori-outline:hover {
+  background-color: rgba(62, 47, 89, 0.06);
+  color: var(--flori-title);
+}
+
+/* ---------- Página inicial / hero ---------- */
+
+/* Container de tela cheia da página inicial, centraliza o conteúdo vertical e horizontalmente */
+.flori-landing {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  position: relative; /* necessário para posicionar os "blobs" decorativos dentro dela */
+  overflow: hidden; /* evita que os blobs animados vazem para fora da tela */
+}
+
+/* Estilo base das formas decorativas ("blobs") borradas que flutuam ao fundo */
+.flori-blob {
+  position: absolute;
+  border-radius: 50%; /* forma circular */
+  filter: blur(50px);  /* efeito de desfoque para dar aspecto suave */
+  opacity: 0.55;
+  z-index: 0; /* fica atrás do conteúdo principal */
+  animation: flori-float 14s ease-in-out infinite; /* flutuação contínua */
+}
+
+/* Primeiro blob decorativo: rosa, posicionado no canto superior esquerdo */
+/* .flori-blob-1 {
+  width: 320px;
+  height: 320px;
+  background: var(--flori-card);
+  top: -60px;
+  left: -80px;
+} */
+
+/* Segundo blob decorativo: verde claro, posicionado no canto inferior direito */
+/* .flori-blob-2 {
+  width: 260px;
+  height: 260px;
+  background: var(--flori-accent);
+  bottom: -40px;
+  right: -60px;
+  animation-delay: -6s; /* dessincroniza o movimento em relação ao blob 1 
+} */
+
+/* Terceiro blob decorativo: verde vibrante, menor e mais discreto, no meio-direita */
+/* .flori-blob-3 {
+  width: 180px;
+  height: 180px;
+  background: var(--flori-cta);
+  top: 45%;
+  right: 10%;
+  opacity: 0.35;
+  animation-delay: -3s; /* dessincroniza o movimento em relação aos outros blobs 
+} */
+
+/* Animação de flutuação usada pelos blobs: move e escala levemente de forma cíclica */
+/* @keyframes flori-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(20px, -25px) scale(1.06); }
+} */
+
+/* Conteúdo textual da página inicial, acima dos blobs (z-index maior) */
+.flori-landing-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 380px;
+}
+
+/* Container da marca/logo no topo da página inicial */
+.flori-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Texto "flori" ao lado do ícone/logo */
+.flori-mark span {
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: var(--flori-title);
+}
+
+/* Título principal (headline) da página inicial */
+.flori-landing-content h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  line-height: 1.25;
+}
+
+/* Parágrafo de subtítulo/descrição abaixo do título principal */
+.flori-landing-content p {
+  font-size: 1rem;
+  color: #5a5164;
+  margin-bottom: 2.5rem;
+}
+
+/* Empilha os botões de ação (Criar conta / Já tenho conta) verticalmente com espaçamento */
+.flori-landing-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Nota de rodapé pequena sobre privacidade, abaixo dos botões */
+.flori-landing-footnote {
+  margin-top: 1.5rem;
+  font-size: 0.82rem;
+  color: #8a8393;
+}
+
+/* Respeita a preferência de acessibilidade do usuário de reduzir animações */
+@media (prefers-reduced-motion: reduce) {
+  .flori-blob {
+    animation: none;
+  }
+}

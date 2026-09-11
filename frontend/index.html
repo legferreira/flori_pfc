@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flori</title>
+
+<!-- Fontes do Google Fonts usadas pela identidade visual (títulos e texto) -->
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Framework Bootstrap, usado para grid, botões e estilos base -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link href="style.css" rel="stylesheet">
+
+</head>
+<body>
+
+<!-- Seção "hero" de tela cheia com fundo decorativo animado -->
+<div class="flori-landing">
+  <!-- Formas decorativas ("blobs") que flutuam ao fundo da página -->
+  <div class="flori-blob flori-blob-1"></div>
+  <div class="flori-blob flori-blob-2"></div>
+  <div class="flori-blob flori-blob-3"></div>
+
+  <!-- Conteúdo principal centralizado, acima dos blobs -->
+  <div class="flori-landing-content">
+    <!-- Logo/marca "flori": ícone SVG (flor feita de círculos coloridos) + nome -->
+    <div class="flori-mark">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="14" cy="8" r="5" fill="#EDBFD8"/>
+        <circle cx="20" cy="14" r="5" fill="#C9E372"/>
+        <circle cx="14" cy="20" r="5" fill="#CDD98D"/>
+        <circle cx="8" cy="14" r="5" fill="#EDBFD8"/>
+        <circle cx="14" cy="14" r="3.5" fill="#3E2F59"/>
+      </svg>
+      <span>Flori</span>
+    </div>
+
+    <!-- Título e descrição de apresentação do produto -->
+    <h1>Aqui, seu corpo não é mistério.</h1>
+    <p>Informação confiável sobre menstruação, de um jeito que você entende.</p>
+
+    <!-- Botões de ação: levam para as páginas de cadastro e login. btn: classe base de botão do Bootstrap (combinada com btn-flori/btn-flori-outline, estilos próprios) -->
+    <div class="flori-landing-actions">
+      <a href="cadastro.html" class="btn btn-flori">Criar conta</a>
+      <a href="login.html" class="btn btn-flori-outline">Já tenho conta</a>
+    </div>
+
+   
+
+</body>
+</html>

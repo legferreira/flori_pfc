@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flori | Entrar</title>
+
+<!-- Fontes do Google Fonts usadas pela identidade visual (títulos e texto) -->
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Framework Bootstrap, usado para grid, botões e estilos base -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<!-- Estilos próprios da marca Flori (cores, cartões, botões) -->
+<link href="style.css" rel="stylesheet">
+
+</head>
+<body>
+
+<!-- .container: classe do Bootstrap que centraliza o conteúdo e aplica margens/padding responsivos -->
+<div class="container">
+  <!-- Link para voltar à página inicial. mt-3: utilitário de espaçamento (margin-top) do Bootstrap -->
+  <a href="index.html" class="flori-nav-back mt-3">&larr; Voltar</a>
+
+  <!-- Cartão branco que contém o formulário de login -->
+  <div class="flori-card">
+    <!-- mb-1/mb-4: utilitários de espaçamento (margin-bottom) do Bootstrap -->
+    <h1 class="flori-heading mb-1" style="font-size: 1.6rem;">Que bom te ver de novo</h1>
+    <p class="flori-hint mb-4">Entre com o e-mail ou celular que você cadastrou.</p>
+
+    <!-- Formulário de login. novalidate desativa a validação nativa do navegador,
+         pois a validação customizada é feita em login.js -->
+    <form id="formLogin" novalidate>
+
+      <!-- Campo único que aceita e-mail ou celular como identificador. mb-3: utilitário de espaçamento (margin-bottom) do Bootstrap; form-label/form-control: classes do Bootstrap para rótulos e campos -->
+      <div class="mb-3">
+        <label class="form-label" for="contato">E-mail ou celular</label>
+        <input type="text" class="form-control" id="contato" placeholder="seuemail@exemplo.com" required>
+        <div class="flori-error" id="erroContato">Preencha o e-mail ou celular pra continuar.</div>
+      </div>
+
+      <!-- Campo de senha. mb-2: utilitário de espaçamento (margin-bottom) do Bootstrap -->
+      <div class="mb-2">
+        <label class="form-label" for="senha">Senha</label>
+        <input type="password" class="form-control" id="senha" placeholder="Sua senha" required>
+        <div class="flori-error" id="erroSenha">Preencha a senha pra continuar.</div>
+      </div>
+
+      <!-- Link para recuperação de senha (ainda sem destino funcional, href="#"). mb-4: espaçamento inferior; text-end: alinha o texto à direita (utilitários do Bootstrap) -->
+      <div class="mb-4 text-end">
+        <a href="#" class="flori-hint" style="text-decoration: none;">Esqueci minha senha</a>
+      </div>
+
+      <!-- Botão de envio do formulário. btn: classe base de botão do Bootstrap (combinada com btn-flori, estilo próprio) -->
+      <button type="submit" class="btn btn-flori">Entrar</button>
+
+      <!-- Link para quem ainda não tem conta. text-center: utilitário do Bootstrap para centralizar texto -->
+      <p class="flori-hint text-center mt-3">
+        Ainda não tem conta? <a href="cadastro.html" style="color: var(--flori-title); font-weight: 600;">Criar conta</a>
+      </p>
+    </form>
+  </div>
+</div>
+
+<!-- Script com a lógica de validação e envio do formulário de login -->
+<script src="login.js"></script>
+
+</body>
+</html>
