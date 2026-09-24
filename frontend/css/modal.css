@@ -1,0 +1,32 @@
+/* modal de "Esqueci minha senha" no login. */
+
+.flori-modal {
+  border: none;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(62, 47, 89, 0.18);
+  width: calc(100% - 2rem);
+  max-width: 420px;
+  color: var(--flori-title);
+}
+
+.flori-modal::backdrop {
+  background-color: rgba(62, 47, 89, 0.45);
+}
+
+.flori-modal form {
+  position: relative;
+}
+
+.flori-modal-fechar {
+  position: absolute;
+  top: -1.25rem;
+  right: -1.25rem;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  color: var(--flori-title);
+  font-size: 1.6rem;
+  line-height: 1;
+}

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flori | Verificar código</title>
+
+
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+
+<link href="css/base.css?v=8" rel="stylesheet">
+<link href="css/formularios.css?v=8" rel="stylesheet">
+<link href="css/botoes.css?v=8" rel="stylesheet">
+
+</head>
+<body>
+
+<div class="container">
+  <a href="login.html" class="flori-nav-back mt-3">&larr; Voltar para o login</a>
+
+  
+  <div class="flori-card">
+    <h1 class="flori-heading mb-1" style="font-size: 1.6rem;">Confira seu e-mail</h1>
+    <p class="flori-hint mb-4">
+      Enviamos um código de 6 números para <strong id="emailMascarado">o seu e-mail</strong>.
+      Digite ele abaixo para terminar de entrar.
+    </p>
+
+    
+    <form id="formVerificarCodigo" novalidate>
+      <div class="mb-3">
+        <label class="form-label" for="codigo">Código de verificação</label>
+        
+        <input type="text" class="form-control flori-code-input" id="codigo"
+               inputmode="numeric" autocomplete="one-time-code" maxlength="6"
+               placeholder="000000" required>
+        <div class="flori-error" id="erroCodigo"></div>
+        <div class="flori-hint" id="validadeCodigo"></div>
+      </div>
+
+      <button type="submit" class="btn btn-flori" id="botaoVerificar">Verificar e entrar</button>
+
+      <p class="flori-hint text-center mt-3">
+        Não recebeu? Confira a caixa de spam ou
+        <a href="login.html" style="color: var(--flori-title); font-weight: 600;">faça login de novo</a>
+        para receber outro código.
+      </p>
+    </form>
+
+   
+    <div id="codigoExpirado" hidden>
+      <div class="flori-age-block mb-4" style="display: block; margin-top: 0;" id="mensagemExpirado">
+        Este código expirou. Faça login de novo para receber um novo código.
+      </div>
+      <a href="login.html" class="btn btn-flori">Voltar para o login</a>
+    </div>
+  </div>
+</div>
+
+
+<script src="js/compartilhado/sessao.js?v=2"></script>
+<script src="js/verificar-codigo.js?v=2"></script>
+
+</body>
+</html>

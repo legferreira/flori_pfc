@@ -1,0 +1,14 @@
+{% autoescape off %}Oi, {{ apelido }}!
+
+Seu código de acesso ao Flori é:
+
+    {{ codigo }}
+
+O código vale por {{ validade_minutos }} minutos e só pode ser usado uma vez.
+Nunca compartilhe este código com ninguém.
+
+Não foi você? Alguém tentou entrar na sua conta usando a sua senha.
+Recomendamos trocar a senha agora em "Esqueci minha senha", na tela de login.
+
+— Flori
+{% endautoescape %}

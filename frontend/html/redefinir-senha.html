@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="referrer" content="no-referrer">
+<title>Flori | Nova senha</title>
+
+
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+
+<link href="css/base.css?v=8" rel="stylesheet">
+<link href="css/formularios.css?v=8" rel="stylesheet">
+<link href="css/botoes.css?v=8" rel="stylesheet">
+
+</head>
+<body>
+
+<div class="container">
+  <a href="login.html" class="flori-nav-back mt-3">&larr; Voltar para o login</a>
+
+  <div class="flori-card">
+    <h1 class="flori-heading mb-1" style="font-size: 1.6rem;">Crie uma nova senha</h1>
+    <p class="flori-hint mb-4">Escolha uma senha que você não use em outros lugares.</p>
+
+
+    <div class="flori-age-block" id="avisoLinkInvalido" style="margin-top: 0;">
+      Este link é inválido ou expirou. Peça um novo em
+      <a href="login.html" style="color: var(--flori-title); font-weight: 600;">Esqueci minha senha</a>.
+    </div>
+
+   
+    <form id="formRedefinirSenha" novalidate>
+
+      <div class="mb-3">
+        <label class="form-label" for="novaSenha">Nova senha</label>
+        <input type="password" class="form-control" id="novaSenha" placeholder="Mínimo 8 caracteres" autocomplete="new-password" required>
+        <div class="flori-error" id="erroNovaSenha">A senha precisa ter pelo menos 8 caracteres.</div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label" for="confirmarNovaSenha">Confirme a nova senha</label>
+        <input type="password" class="form-control" id="confirmarNovaSenha" autocomplete="new-password" required>
+        <div class="flori-error" id="erroConfirmarNovaSenha">As senhas não são iguais.</div>
+      </div>
+
+      <div class="flori-error mb-3" id="erroRedefinirSenha"></div>
+
+      <button type="submit" class="btn btn-flori" id="salvarNovaSenha">Salvar nova senha</button>
+    </form>
+
+    
+    <div id="sucessoRedefinirSenha" style="display: none;">
+      <p class="mb-4" id="mensagemSucessoRedefinir"></p>
+      <a href="login.html" class="btn btn-flori">Ir para o login</a>
+    </div>
+  </div>
+</div>
+
+
+<script src="js/redefinir-senha.js"></script>
+
+</body>
+</html>

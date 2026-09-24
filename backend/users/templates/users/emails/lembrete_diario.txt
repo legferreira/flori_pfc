@@ -1,0 +1,12 @@
+{% autoescape off %}Oi, {{ apelido }}!
+
+Já faz um tempo desde o seu último registro no diário do corpo.
+Anotar como você está, mesmo que rapidinho, ajuda a entender melhor os seus ciclos.
+
+Registrar como estou hoje:
+{{ link }}
+
+Sem pressão: o Flori respeita o seu tempo. Este é só um lembrete carinhoso.
+
+— Flori
+{% endautoescape %}

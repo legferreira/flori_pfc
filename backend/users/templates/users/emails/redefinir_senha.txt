@@ -1,0 +1,13 @@
+{% autoescape off %}Oi, {{ apelido }}!
+
+Recebemos um pedido para redefinir a senha da sua conta no Flori.
+Para criar uma nova senha, abra o link abaixo:
+
+{{ link }}
+
+O link vale por {{ validade_minutos }} minutos e só pode ser usado uma vez.
+
+Não foi você? Pode ignorar este e-mail: sua senha atual continua a mesma.
+
+— Flori
+{% endautoescape %}

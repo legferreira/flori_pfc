@@ -1,0 +1,13 @@
+{% autoescape off %}Oi, {{ apelido }}!
+
+Sua conta no Flori está pronta. Que bom ter você por aqui!
+O Flori é um espaço seu, para acompanhar o seu corpo e as suas fases no seu ritmo, sem julgamentos.
+
+{% if via_google %}Para entrar, use o botão "Continuar com Google" na tela de login.
+Se quiser entrar também com e-mail e senha, crie uma senha em "Esqueci minha senha".{% else %}Para entrar, use este e-mail e a senha que você criou no cadastro:{% endif %}
+{{ link }}
+
+Não foi você que criou esta conta? Pode ignorar este e-mail.
+
+— Flori
+{% endautoescape %}

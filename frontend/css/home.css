@@ -1,0 +1,64 @@
+/*  home: barra do topo, foto/avatar e botão Sair. */
+
+.flori-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background-color: #ffffff;
+  box-shadow: 0 2px 12px rgba(62, 47, 89, 0.06);
+}
+
+.flori-topbar .flori-mark span {
+  font-size: 1.25rem;
+  padding: -2px;
+}
+
+.flori-usuario {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0; 
+}
+
+/* Foto */
+.flori-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid var(--flori-card);
+}
+
+.flori-avatar-inicial {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--flori-card);
+  color: var(--flori-title);
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+}
+
+.flori-usuario-nome {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Botão Sair */
+.btn.btn-sair {
+  width: auto;
+  min-height: 36px;
+  padding: 0.25rem 1rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 380px) {
+  .flori-usuario-nome {
+    display: none;
+  }
+}

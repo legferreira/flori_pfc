@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Ambiente virtual
+.venv/
+venv/
+env/
+
+# Segredos — o .env fica só na máquina; use .env.example como modelo
+.env
+*.env
+!.env.example
+
+# Banco local de desenvolvimento
+*.sqlite3
+db.sqlite3
+
+# Django
+*.log
+/backend/staticfiles/
+/backend/media/
+
+# Sistema operacional
+Thumbs.db
+desktop.ini
+.DS_Store
+
+*.bak

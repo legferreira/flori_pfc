@@ -1,0 +1,97 @@
+/* página inicial (index.html) */
+
+
+.flori-landing {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  position: relative; 
+  overflow: hidden; 
+}
+
+
+.flori-blob {
+  position: absolute;
+  border-radius: 50%; 
+  filter: blur(50px);  
+  opacity: 0.55;
+  z-index: 0; 
+  animation: flori-float 14s ease-in-out infinite; 
+}
+
+/* Primeiro blob decorativo: rosa, posicionado no canto superior esquerdo */
+/* .flori-blob-1 {
+  width: 320px;
+  height: 320px;
+  background: var(--flori-card);
+  top: -60px;
+  left: -80px;
+} */
+
+/* Segundo blob decorativo: verde claro, posicionado no canto inferior direito */
+/* .flori-blob-2 {
+  width: 260px;
+  height: 260px;
+  background: var(--flori-accent);
+  bottom: -40px;
+  right: -60px;
+  animation-delay: -6s; /* dessincroniza o movimento em relação ao blob 1 
+} */
+
+/* Terceiro blob decorativo: verde vibrante, menor e mais discreto, no meio-direita */
+/* .flori-blob-3 {
+  width: 180px;
+  height: 180px;
+  background: var(--flori-cta);
+  top: 45%;
+  right: 10%;
+  opacity: 0.35;
+  animation-delay: -3s; /* dessincroniza o movimento em relação aos outros blobs 
+} */
+
+/* Animação de flutuação usada pelos blobs: move e escala levemente de forma cíclica */
+/* @keyframes flori-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(20px, -25px) scale(1.06); }
+} */
+
+.flori-landing-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 380px;
+}
+
+.flori-landing-content h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  line-height: 1.25;
+}
+
+.flori-landing-content p {
+  font-size: 1rem;
+  color: #5a5164;
+  margin-bottom: 2.5rem;
+}
+
+.flori-landing-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.flori-landing-footnote {
+  margin-top: 1.5rem;
+  font-size: 0.82rem;
+  color: #8a8393;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flori-blob {
+    animation: none;
+  }
+}

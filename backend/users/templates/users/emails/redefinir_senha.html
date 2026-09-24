@@ -1,0 +1,45 @@
+{% extends 'users/emails/base.html' %}
+
+{% block titulo_pagina %}Redefinição de senha — Flori{% endblock %}
+
+{% block preheader %}Use o link para criar uma nova senha. Ele vale por {{ validade_minutos }} minutos.{% endblock %}
+
+{% block titulo %}Oi, {{ apelido }}! Vamos criar uma nova senha?{% endblock %}
+
+{% block conteudo %}
+Recebemos um pedido para redefinir a senha da sua conta no Flori.
+É só tocar no botão abaixo e escolher a nova senha.
+{% endblock %}
+
+{% block botao_link %}{{ link }}{% endblock %}
+{% block botao_texto %}Criar nova senha{% endblock %}
+
+{% block depois_do_botao %}
+
+<tr>
+  <td style="padding:0 32px 24px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td style="background-color:#FDFBF5; border-radius:12px; padding:14px 16px; font-family:Inter, Arial, sans-serif; font-size:13px; line-height:1.5; color:#5a5164;">
+          &#9201;&nbsp; O link vale por <strong style="color:#3E2F59;">{{ validade_minutos }} minutos</strong> e só pode ser usado uma vez.
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+
+<!-- Link alternativo -->
+<tr>
+  <td style="padding:0 32px 24px; font-family:Inter, Arial, sans-serif; font-size:12px; line-height:1.5; color:#8a8393;">
+    O botão não funcionou? Copie e cole este endereço no navegador:<br>
+    <a href="{{ link }}" target="_blank" style="color:#3E2F59; word-break:break-all;">{{ link }}</a>
+  </td>
+</tr>
+{% endblock %}
+
+{% block nota_final %}
+<strong style="color:#3E2F59;">Não foi você?</strong> Pode ignorar este e-mail com tranquilidade:
+sua senha atual continua a mesma e ninguém consegue trocá-la sem este link.
+{% endblock %}
+
+{% block rodape %}Você recebeu este e-mail porque alguém pediu a redefinição de senha da sua conta no Flori.{% endblock %}

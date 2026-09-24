@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flori | Início</title>
+
+
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+
+<link href="css/base.css?v=8" rel="stylesheet">
+<link href="css/botoes.css?v=8" rel="stylesheet">
+<link href="css/home.css?v=8" rel="stylesheet">
+
+</head>
+<body>
+
+
+<header class="flori-topbar" id="topo" hidden>
+  <a href="home.html" class="flori-mark mb-0" style="text-decoration: none;">
+    <svg width="24" height="24" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+      <circle cx="14" cy="8" r="5" fill="#EDBFD8"/>
+      <circle cx="20" cy="14" r="5" fill="#C9E372"/>
+      <circle cx="14" cy="20" r="5" fill="#CDD98D"/>
+      <circle cx="8" cy="14" r="5" fill="#EDBFD8"/>
+      <circle cx="14" cy="14" r="3.5" fill="#3E2F59"/>
+    </svg>
+    <span>flori</span>
+  </a>
+
+  <div class="flori-usuario">
+ 
+    <img class="flori-avatar" id="fotoUsuario" alt="" referrerpolicy="no-referrer" hidden>
+    <span class="flori-avatar flori-avatar-inicial" id="inicialUsuario" aria-hidden="true" hidden></span>
+    <span class="flori-usuario-nome" id="nomeUsuario"></span>
+    <button type="button" class="btn btn-flori-outline btn-sair" id="botaoSair">Sair</button>
+  </div>
+</header>
+
+<main class="container" id="conteudo" hidden>
+  <div class="flori-card">
+    <h1 class="flori-heading mb-1" style="font-size: 1.6rem;" id="saudacao">Oi!</h1>
+    <p class="flori-hint mb-0">Que bom ter você por aqui. Em breve, sua trilha e seu diário do corpo vão aparecer neste espaço.</p>
+  </div>
+</main>
+
+<script src="js/compartilhado/sessao.js?v=2"></script>
+
+<script type="module" src="js/home.js?v=1"></script>
+
+</body>
+</html>

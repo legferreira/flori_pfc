@@ -1,0 +1,6 @@
+Django==6.1.1
+django-cors-headers==4.9.0
+python-dotenv==1.2.3
+PyMySQL==1.2.0
+requests
+google-auth==2.58.0

@@ -1,0 +1,85 @@
+/* botões: principal, contorno, Google e a divisória  */
+
+
+/* botão principal de ação */
+.btn-flori {
+  background-color: var(--flori-cta);
+  color: var(--flori-title);
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  min-height: 44px;
+  width: 100%;
+}
+
+/* cor mais escura ao passar o mouse sobre o botão principal */
+.btn-flori:hover {
+  background-color: #bcd964;
+  color: var(--flori-title);
+}
+
+/* botão secundário */
+.btn-flori-outline {
+  background-color: transparent;
+  color: var(--flori-title);
+  font-weight: 600;
+  border: 1.5px solid var(--flori-title);
+  border-radius: 12px;
+  min-height: 44px;
+  width: 100%;
+}
+
+.btn-flori-outline:hover {
+  background-color: rgba(62, 47, 89, 0.06);
+  color: var(--flori-title);
+}
+
+/* botão principal desabilitado */
+.btn-flori:disabled {
+  background-color: #e3ecc4;
+  color: #7a7385;
+}
+
+/* login com Google */
+
+/* linha divisória  */
+.flori-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+  font-size: 0.85rem;
+  color: #8a8393;
+}
+
+.flori-divider::before,
+.flori-divider::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid #eee;
+}
+
+/* padrão visual que o Google recomenda */
+.btn-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 44px;
+  background-color: #ffffff;
+  color: var(--flori-title);
+  font-weight: 600;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+}
+
+.btn-google:hover {
+  background-color: #f8f7fa;
+  border-color: #cfcad6;
+  color: var(--flori-title);
+}
+
+.btn-google:disabled {
+  opacity: 0.6;
+}

@@ -1,0 +1,51 @@
+{% extends 'users/emails/base.html' %}
+
+{% block titulo_pagina %}Seu código de acesso — Flori{% endblock %}
+
+
+{% block preheader %}Use o código deste e-mail para terminar de entrar. Ele vale por {{ validade_minutos }} minutos.{% endblock %}
+
+{% block titulo %}Oi, {{ apelido }}! Aqui está seu código de acesso{% endblock %}
+
+{% block conteudo %}
+Para terminar de entrar no Flori, digite este código na tela de verificação:
+{% endblock %}
+
+
+{% block botao %}{% endblock %}
+
+{% block depois_do_botao %}
+
+<tr>
+  <td align="center" style="padding:0 32px 24px;">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td align="center" style="background-color:#FDFBF5; border:2px dashed #EDBFD8; border-radius:16px; padding:18px 28px; font-family:'Courier New', Courier, monospace; font-size:36px; font-weight:700; letter-spacing:10px; color:#3E2F59;">
+          {{ codigo }}
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+
+
+<tr>
+  <td style="padding:0 32px 24px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td style="background-color:#FDFBF5; border-radius:12px; padding:14px 16px; font-family:Inter, Arial, sans-serif; font-size:13px; line-height:1.5; color:#5a5164;">
+          &#9201;&nbsp; O código vale por <strong style="color:#3E2F59;">{{ validade_minutos }} minutos</strong> e só pode ser usado uma vez.
+          Nunca compartilhe este código com ninguém — a equipe do Flori nunca vai pedir ele pra você.
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+{% endblock %}
+
+{% block nota_final %}
+<strong style="color:#3E2F59;">Não foi você?</strong> Alguém tentou entrar na sua conta usando a sua senha.
+Recomendamos trocar a senha agora em "Esqueci minha senha", na tela de login.
+{% endblock %}
+
+{% block rodape %}Você recebeu este e-mail porque alguém fez login na sua conta do Flori.{% endblock %}
