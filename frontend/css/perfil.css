@@ -1,0 +1,41 @@
+.flori-perfil {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 900px) {
+  .flori-perfil { grid-template-columns: 1.2fr 1fr; align-items: start; }
+}
+
+.flori-perfil-bloco h2 {
+  font-size: 1.15rem;
+  margin-bottom: 1rem;
+}
+
+.flori-perfil .form-control[readonly] {
+  background-color: #f6f2f9;
+  color: #6b5f7a;
+}
+
+.flori-perfil .flori-success,
+.flori-perfil .flori-error {
+  margin: 0.75rem 0 0;
+}
+
+.flori-consentimento {
+  padding: 0.9rem 0;
+  border-top: 1px solid #efeaf4;
+}
+
+.flori-consentimento:first-of-type { border-top: 0; padding-top: 0; }
+
+.flori-consentimento strong { display: block; }
+
+.flori-consentimento small { display: block; margin: 0.15rem 0 0.6rem; }
+
+.flori-consentimento-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}

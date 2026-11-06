@@ -1,14 +1,10 @@
-/* campos, dicas, erros, avisos e o campo do código 2FA. */
-
-
-/* campos de formulário */
 .form-label {
   font-weight: 500;
   font-size: 0.95rem;
 }
 
 .form-control, .form-select {
-  min-height: 44px; 
+  min-height: 44px;
   border-radius: 10px;
   border: 1px solid #ddd;
 }
@@ -25,9 +21,8 @@
   display: none;
 }
 
-/* aviso exibido quando a idade informada é menor que a mínima permitida */
 .flori-age-block {
-  display: none; 
+  display: none;
   background-color: #fff4f4;
   border: 1px solid #f3caca;
   border-radius: 12px;
@@ -42,8 +37,6 @@
   margin-top: 0.25rem;
   display: none;
 }
-
-/* Código de verificação */
 
 .flori-code-input {
   font-family: 'Courier New', Courier, monospace;

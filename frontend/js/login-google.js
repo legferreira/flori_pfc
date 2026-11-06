@@ -1,9 +1,3 @@
-// Flori — Botão "Continuar com Google" da tela de login
-//
-// Já tem conta: entra. Não tem: guarda o perfil Google e manda para o
-// cadastro, que pede só o que o Google não fornece (apelido, data de
-// nascimento, termos) — ver cadastro-google.js.
-
 import { continuarComGoogle, CHAVE_CADASTRO_GOOGLE } from './compartilhado/google-auth.js';
 
 const botaoGoogle = document.getElementById('botaoGoogle');
@@ -23,7 +17,7 @@ botaoGoogle.addEventListener('click', async () => {
         return;
       }
       if (status === 200) {
-        concluirLogin(resultado); // sessao.js
+        concluirLogin(resultado);
         return;
       }
       throw new Error(resultado.mensagem);

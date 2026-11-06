@@ -1,9 +1,3 @@
-// Flori — Verificação do código de 2 fatores (segunda etapa do login)
-//
-// login.js guarda em sessionStorage ('flori_2fa') o desafio devolvido pelo
-// back-end, o e-mail mascarado e a hora em que o código expira. Esta página
-// manda desafio + código digitado para POST /api/login/verificar.
-
 const CHAVE_2FA = 'flori_2fa';
 
 const formVerificar = document.getElementById('formVerificarCodigo');
@@ -24,7 +18,6 @@ function lerLoginPendente() {
 
 const pendente = lerLoginPendente();
 
-// Troca o formulário pelo aviso de "faça login de novo" e descarta o desafio.
 function encerrar(mensagem) {
   clearInterval(relogio);
   sessionStorage.removeItem(CHAVE_2FA);
@@ -33,7 +26,6 @@ function encerrar(mensagem) {
   document.getElementById('codigoExpirado').hidden = false;
 }
 
-// Contagem regressiva só informativa — quem decide se expirou é o back-end.
 function atualizarValidade() {
   const restante = Math.ceil((pendente.expiraEm - Date.now()) / 1000);
   if (restante <= 0) {
@@ -46,7 +38,6 @@ function atualizarValidade() {
 }
 
 if (!pendente || !pendente.desafio) {
-  // Página aberta direto (sem passar pelo login) ou aba recarregada depois de fechar.
   encerrar('Para receber um código, faça login primeiro.');
 } else {
   document.getElementById('emailMascarado').textContent = pendente.email;
@@ -55,7 +46,6 @@ if (!pendente || !pendente.desafio) {
   campoCodigo.focus();
 }
 
-// Aceita só números (inclusive ao colar "123 456" ou "123-456").
 campoCodigo.addEventListener('input', () => {
   campoCodigo.value = campoCodigo.value.replace(/\D/g, '').slice(0, 6);
   erroCodigo.style.display = 'none';
@@ -85,15 +75,13 @@ formVerificar.addEventListener('submit', async (e) => {
 
     if (resposta.status === 200) {
       sessionStorage.removeItem(CHAVE_2FA);
-      concluirLogin(resultado); // sessao.js
+      concluirLogin(resultado);
       return;
     }
     if (resposta.status === 410) {
-      // Expirou ou errou demais: este desafio não serve mais.
       encerrar(resultado.mensagem);
       return;
     }
-    // 400: "Código inválido. Tente novamente."
     erroCodigo.textContent = resultado.mensagem;
     erroCodigo.style.display = 'block';
     campoCodigo.select();

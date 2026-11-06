@@ -1,10 +1,3 @@
-// Flori — Modal "Esqueci minha senha"
-//
-// Quem manda no intervalo de espera (2, 4, 8... minutos) é o back-end: ele
-// devolve 'espera_segundos' em toda resposta. Aqui só guardamos esse prazo
-// por e-mail no localStorage para mostrar a contagem regressiva no botão,
-// inclusive se a página for recarregada.
-
 (() => {
   const CHAVE_PRAZOS = 'flori_esqueci_senha_prazos';
 
@@ -16,8 +9,6 @@
   const sucesso = document.getElementById('sucessoEsqueciSenha');
 
   let relogio = null;
-
-  // --- Prazos de espera por e-mail (localStorage) -------------------------
 
   function lerPrazos() {
     try {
@@ -33,7 +24,6 @@
     try {
       localStorage.setItem(CHAVE_PRAZOS, JSON.stringify(prazos));
     } catch {
-      // Sem localStorage (ex: aba anônima): a contagem só dura até recarregar.
     }
   }
 
@@ -41,8 +31,6 @@
     const prazo = lerPrazos()[email];
     return prazo ? Math.max(0, Math.ceil((prazo - Date.now()) / 1000)) : 0;
   }
-
-  // --- Botão com contagem regressiva --------------------------------------
 
   function formatar(segundos) {
     const minutos = Math.floor(segundos / 60);
@@ -81,11 +69,8 @@
     sucesso.style.display = 'none';
   }
 
-  // --- Abrir / fechar ------------------------------------------------------
-
   document.getElementById('abrirEsqueciSenha').addEventListener('click', (e) => {
     e.preventDefault();
-    // Aproveita o que já foi digitado no login, se for um e-mail.
     const contatoLogin = document.getElementById('contato').value.trim();
     if (!campoEmail.value && contatoLogin.includes('@')) {
       campoEmail.value = contatoLogin;
@@ -97,7 +82,6 @@
 
   document.getElementById('fecharEsqueciSenha').addEventListener('click', () => modal.close());
 
-  // Clique no fundo escurecido (fora do conteúdo) também fecha.
   modal.addEventListener('click', (e) => {
     if (e.target === modal) modal.close();
   });
@@ -108,8 +92,6 @@
     limparMensagens();
     atualizarBotao();
   });
-
-  // --- Envio ---------------------------------------------------------------
 
   formulario.addEventListener('submit', async (e) => {
     e.preventDefault();
