@@ -4,24 +4,13 @@ from django.template.loader import render_to_string
 
 
 class ErroNotificacao(Exception):
-    """Falha ao enviar e-mail via Brevo.
-
-    Propositalmente NÃO herda de ErroCadastro/ErroLogin: quem chama decide
-    o que fazer com essa falha, mas ela nunca deve, por si só, interromper
-    o fluxo principal (cadastro/login) — e-mail é reforço, não dependência.
-    """
     pass
 
 
 class NotificacaoService:
-    """Envia e-mails transacionais via API externa (Brevo).
-
-    Camada isolada de Service, igual UsuarioService/CadastroUsuario — não
-    mistura regra de negócio de cadastro/login com lógica de envio de e-mail.
-    """
-
     URL_ENVIO = 'https://api.brevo.com/v3/smtp/email'
     NOME_REMETENTE = 'Flori'
+    TIMEOUT_SEGUNDOS = 5
 
     def __init__(self):
         self.api_key = settings.BREVO_API_KEY
@@ -34,7 +23,6 @@ class NotificacaoService:
             'subject': assunto,
             'htmlContent': conteudo_html,
         }
-        
         if conteudo_texto:
             payload['textContent'] = conteudo_texto
         headers = {
@@ -42,26 +30,18 @@ class NotificacaoService:
             'Content-Type': 'application/json',
         }
         try:
-            
-            resposta = requests.post(self.URL_ENVIO, json=payload, headers=headers, timeout=5)
+            resposta = requests.post(self.URL_ENVIO, json=payload, headers=headers, timeout=self.TIMEOUT_SEGUNDOS)
             resposta.raise_for_status()
         except requests.RequestException as e:
             raise ErroNotificacao(f'Falha ao enviar e-mail via Brevo: {e}')
 
     def _enviar_template(self, usuario, assunto, template, **contexto):
-        """Renderiza users/templates/users/emails/<template>.html e .txt e envia.
-
-        O Django escapa o apelido no HTML automaticamente — ninguém injeta
-        HTML no e-mail pelo cadastro. Todo template estende emails/base.html.
-        """
         contexto = {'apelido': usuario.apelido, **contexto}
         self._enviar(
             usuario.email, usuario.apelido, assunto,
             render_to_string(f'users/emails/{template}.html', contexto),
             conteudo_texto=render_to_string(f'users/emails/{template}.txt', contexto),
         )
-
-    
 
     def enviar_confirmacao_cadastro(self, usuario, via_google=False):
         self._enviar_template(
@@ -76,7 +56,6 @@ class NotificacaoService:
         )
 
     def enviar_codigo_autenticacao(self, usuario, codigo, validade_minutos=15):
-       
         self._enviar_template(
             usuario, 'Seu código de acesso — Flori', 'codigo_autenticacao',
             codigo=codigo, validade_minutos=validade_minutos,

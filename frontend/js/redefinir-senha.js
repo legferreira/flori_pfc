@@ -1,16 +1,11 @@
-// Flori — Página de nova senha (aberta pelo link do e-mail de "Esqueci minha senha")
-
 const TAMANHO_MINIMO_SENHA = 8;
 
 const formRedefinir = document.getElementById('formRedefinirSenha');
 const botaoSalvar = document.getElementById('salvarNovaSenha');
 const erroGeral = document.getElementById('erroRedefinirSenha');
 
-// O token chega na URL: redefinir-senha.html?token=...
 const token = new URLSearchParams(window.location.search).get('token');
 
-// Tira o token da barra de endereço (e do histórico) assim que é lido,
-// para ele não ficar exposto na tela nem ser reaberto pelo "voltar".
 if (token) {
   history.replaceState(null, '', window.location.pathname);
 }
@@ -50,7 +45,6 @@ formRedefinir.addEventListener('submit', async (e) => {
     const resultado = await resposta.json();
 
     if (resposta.status === 200) {
-      // As sessões antigas foram encerradas no back-end; limpa a daqui também.
       localStorage.removeItem('flori_token');
       localStorage.removeItem('flori_apelido');
       formRedefinir.style.display = 'none';

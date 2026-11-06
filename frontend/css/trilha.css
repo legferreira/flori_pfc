@@ -1,0 +1,652 @@
+.flori-grade {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .flori-grade-cards { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 900px) {
+  .flori-grade-assuntos { grid-template-columns: repeat(3, 1fr); }
+}
+
+.flori-assunto {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.4rem;
+  border-radius: 20px;
+  background-color: #ffffff;
+  background-color: color-mix(in srgb, var(--cor) 32%, #ffffff);
+  color: var(--flori-title);
+  text-decoration: none;
+  box-shadow: 0 4px 24px rgba(62, 47, 89, 0.08);
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.flori-assunto:hover {
+  color: var(--flori-title);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(62, 47, 89, 0.14);
+}
+
+.flori-assunto-flor {
+  width: 56px;
+  height: 56px;
+}
+
+.flori-assunto h2 {
+  font-size: 1.35rem;
+  margin: 0;
+}
+
+.flori-assunto p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.flori-assunto .flori-barra {
+  background-color: rgba(255, 255, 255, 0.75);
+  margin-top: auto;
+}
+
+.flori-assunto-pe {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.flori-assunto-acao {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.flori-flashcard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 150px;
+  padding: 1.25rem 1.25rem 1.1rem;
+  border: 0;
+  border-top: 8px solid var(--cor);
+  border-radius: 18px;
+  background-color: #ffffff;
+  color: var(--flori-title);
+  text-align: left;
+  box-shadow: 0 4px 24px rgba(62, 47, 89, 0.08);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.flori-flashcard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(62, 47, 89, 0.14);
+}
+
+.flori-flashcard-numero {
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #6b6b6b;
+}
+
+.flori-flashcard h3 {
+  font-size: 1.25rem;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.flori-chip {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1.5px solid rgba(62, 47, 89, 0.35);
+}
+
+.flori-chip.is-ok {
+  background-color: var(--flori-cta);
+  border-color: transparent;
+}
+
+.flori-flashcard.is-ok {
+  border-top-color: var(--flori-cta);
+}
+
+.flori-dialog {
+  width: min(580px, calc(100% - 2rem));
+  max-height: 90vh;
+  padding: 0;
+  border: 0;
+  border-radius: 22px;
+  color: var(--flori-title);
+  background-color: #ffffff;
+  box-shadow: 0 16px 56px rgba(62, 47, 89, 0.3);
+  overflow: auto;
+}
+
+.flori-dialog::backdrop {
+  background: rgba(62, 47, 89, 0.5);
+}
+
+@media (max-width: 575px) {
+  .flori-dialog {
+    width: 100%;
+    max-width: 100%;
+    margin: auto 0 0;
+    max-height: 92vh;
+    border-radius: 22px 22px 0 0;
+  }
+}
+
+.flori-dialog-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem 0.85rem 1.5rem;
+  background-color: var(--cor);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.flori-dialog-fechar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--flori-title);
+  cursor: pointer;
+}
+
+.flori-dialog-fechar:hover { background: rgba(255, 255, 255, 0.85); }
+
+.flori-dialog-corpo {
+  padding: 1.4rem 1.5rem 1.5rem;
+}
+
+.flori-dialog-corpo h2 {
+  font-size: 1.6rem;
+  line-height: 1.15;
+  margin-bottom: 0.75rem;
+}
+
+.flori-explicacao {
+  font-size: 1.02rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.flori-exemplo {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  background-color: rgba(205, 217, 141, 0.35);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.flori-exemplo strong {
+  display: block;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 0.2rem;
+}
+
+.flori-fonte {
+  font-size: 0.82rem;
+  color: #5f5f5f;
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+}
+
+.flori-fonte a {
+  color: var(--flori-title);
+  text-underline-offset: 3px;
+}
+
+.flori-cta-extra {
+  margin-bottom: 1.25rem;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  background-color: rgba(237, 191, 216, 0.3);
+  font-size: 0.92rem;
+}
+
+.flori-cta-extra .btn {
+  margin-top: 0.6rem;
+}
+
+.flori-dialog-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+
+.flori-sucesso {
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.btn.btn-flori.flori-btn-concluido:disabled {
+  background-color: #e3ecc4;
+  color: var(--flori-title);
+  opacity: 1;
+}
+
+.flori-secao {
+  margin: 1rem 0 0.4rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.flori-socorro {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  margin-bottom: 1.5rem;
+  padding: 1.1rem 1.25rem;
+  border: 2px solid var(--flori-card);
+  border-radius: 20px;
+  background-color: #fbeaf4;
+  color: var(--flori-title);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.flori-socorro:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(62, 47, 89, 0.14);
+}
+
+.flori-socorro-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+.flori-socorro-titulo {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.flori-socorro-sub {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.9rem;
+}
+
+.flori-socorro-acao {
+  flex-shrink: 0;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  background-color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+@media (max-width: 575px) {
+  .flori-socorro-acao { display: none; }
+}
+
+.flori-passos {
+  list-style: none;
+  counter-reset: passo;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.flori-passos li {
+  counter-increment: passo;
+  position: relative;
+  padding-left: 2.6rem;
+  line-height: 1.5;
+  font-size: 0.97rem;
+}
+
+.flori-passos li::before {
+  content: counter(passo);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1.9rem;
+  height: 1.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: var(--flori-card);
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+}
+
+.flori-passos strong {
+  display: block;
+}
+
+.flori-itens {
+  margin: 0 0 1rem;
+  padding-left: 1.25rem;
+  line-height: 1.55;
+  font-size: 1rem;
+}
+
+.flori-itens li + li {
+  margin-top: 0.35rem;
+}
+
+.flori-quiz-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1.25rem 1.4rem;
+  border-radius: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 24px rgba(62, 47, 89, 0.08);
+}
+
+.flori-quiz-card.is-bloqueado {
+  background-color: rgba(255, 255, 255, 0.6);
+  border: 2px dashed rgba(62, 47, 89, 0.25);
+  box-shadow: none;
+}
+
+.flori-quiz-card.is-liberado {
+  background-color: color-mix(in srgb, var(--flori-cta) 35%, #ffffff);
+}
+
+.flori-quiz-icone {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.flori-quiz-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+.flori-quiz-texto h2 {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.flori-quiz-texto p {
+  margin: 0.15rem 0 0;
+  font-size: 0.9rem;
+}
+
+.flori-quiz-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.flori-quiz-acoes .btn {
+  width: auto;
+  padding: 0.4rem 1.1rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 575px) {
+  .flori-quiz-card { flex-direction: column; align-items: stretch; }
+  .flori-quiz-acoes .btn { width: 100%; }
+}
+
+.flori-quiz {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.flori-pergunta {
+  margin: 1.25rem 0 1rem;
+  padding: 0;
+  border: 0;
+}
+
+.flori-pergunta legend {
+  float: none;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 1rem;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 1.35rem;
+  line-height: 1.25;
+}
+
+.flori-pergunta legend:focus { outline: none; }
+
+.flori-opcao {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 56px;
+  margin-bottom: 0.6rem;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e5dfeb;
+  border-radius: 14px;
+  background-color: #ffffff;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.flori-opcao:hover { border-color: var(--flori-title); }
+
+.flori-opcao.is-marcada {
+  border-color: var(--flori-title);
+  background-color: color-mix(in srgb, var(--flori-cta) 30%, #ffffff);
+  font-weight: 600;
+}
+
+.flori-opcao input {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  accent-color: var(--flori-title);
+}
+
+.flori-quiz-botoes {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.flori-quiz-botoes .btn { width: auto; min-width: 140px; padding: 0.4rem 1.25rem; }
+
+.flori-resultado {
+  text-align: center;
+  padding: 2rem 1.5rem;
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(62, 47, 89, 0.08);
+}
+
+.flori-resultado-nota {
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 3.2rem;
+  line-height: 1;
+  margin: 0.5rem 0 0.25rem;
+}
+
+.flori-resultado h1 { font-size: 1.6rem; }
+
+.flori-revisar {
+  margin: 1.25rem 0;
+  padding: 1rem 1.1rem;
+  border-radius: 14px;
+  background-color: rgba(237, 191, 216, 0.3);
+  text-align: left;
+}
+
+.flori-revisar ul { margin: 0.4rem 0 0; padding-left: 1.2rem; }
+
+.flori-revisar a { color: var(--flori-title); font-weight: 600; text-underline-offset: 3px; }
+
+.flori-resultado-acoes {
+  display: grid;
+  gap: 0.6rem;
+  max-width: 340px;
+  margin: 1.25rem auto 0;
+}
+
+.flori-cert-wrap {
+  container-type: inline-size;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.flori-certificado {
+  position: relative;
+  padding: 2rem 1.5rem;
+  border: 3px solid var(--flori-title);
+  border-radius: 12px;
+  background-color: #ffffff;
+  text-align: center;
+  overflow: hidden;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.flori-cert-canto {
+  position: absolute;
+  opacity: 0.9;
+}
+
+.flori-cert-canto.tl { top: -34px; left: -34px; }
+.flori-cert-canto.br { bottom: -34px; right: -34px; }
+
+.flori-cert-marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 1.8rem;
+}
+
+.flori-cert-titulo {
+  margin: 0.75rem 0 0;
+  font-size: 1.4rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.flori-cert-texto { margin: 1rem 0 0.25rem; font-size: 1rem; }
+
+.flori-cert-nome {
+  display: inline-block;
+  margin: 0.25rem 0;
+  padding: 0 1rem 0.25rem;
+  border-bottom: 2px solid var(--flori-card);
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 2rem;
+  line-height: 1.2;
+}
+
+.flori-cert-trilha {
+  margin: 0.25rem 0 1.25rem;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+
+.flori-cert-dados {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 2rem;
+  font-size: 0.95rem;
+}
+
+.flori-cert-dados b { display: block; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: #5f5f5f; }
+
+.flori-cert-codigo { margin: 1.25rem 0 0; font-size: 0.75rem; color: #5f5f5f; }
+
+.flori-cert-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.flori-cert-acoes .btn { width: auto; padding: 0.4rem 1.5rem; }
+
+@media (min-width: 768px) {
+  .flori-certificado {
+    aspect-ratio: 1.414 / 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4cqw 6cqw;
+    border-width: 0.5cqw;
+    border-radius: 1.2cqw;
+  }
+  .flori-cert-canto { width: 15cqw; height: 15cqw; }
+  .flori-cert-canto.tl { top: -4cqw; left: -4cqw; }
+  .flori-cert-canto.br { bottom: -4cqw; right: -4cqw; }
+  .flori-cert-marca { font-size: 3.2cqw; gap: 1cqw; }
+  .flori-cert-marca svg { width: 4.2cqw; height: 4.2cqw; }
+  .flori-cert-titulo { font-size: 2.6cqw; margin-top: 1.5cqw; }
+  .flori-cert-texto { font-size: 1.7cqw; margin-top: 2cqw; }
+  .flori-cert-nome { font-size: 5cqw; margin: 0.5cqw 0; padding: 0 2cqw 0.5cqw; border-bottom-width: 0.25cqw; }
+  .flori-cert-trilha { font-size: 2.6cqw; margin: 0.5cqw 0 2.5cqw; }
+  .flori-cert-dados { font-size: 1.7cqw; gap: 1cqw 5cqw; }
+  .flori-cert-dados b { font-size: 1.15cqw; }
+  .flori-cert-codigo { font-size: 1.2cqw; margin-top: 2.5cqw; }
+}
+
+@media print {
+  @page { size: A4 landscape; margin: 0; }
+  body * { visibility: hidden; }
+  .flori-cert-wrap, .flori-cert-wrap * { visibility: visible; }
+  .flori-cert-wrap { position: absolute; left: 0; top: 0; width: 100%; max-width: none; margin: 0; }
+  .flori-certificado { border-radius: 0; }
+  .flori-cert-acoes { display: none; }
+  body { background: #ffffff; }
+}
+
+.flori-aviso-erro {
+  margin: 0;
+  min-height: 1.3em;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #b3261e;
+}

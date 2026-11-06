@@ -1,13 +1,20 @@
-
 from datetime import timedelta
 from unittest.mock import patch
 
 from django.test import TestCase
 from django.utils import timezone
 
-from .models import CodigoAutenticacao, LogAtividade, SolicitacaoRedefinicaoSenha, Token, Usuario
+from .models import CodigoAutenticacao, Consentimento, LogAtividade, SolicitacaoRedefinicaoSenha, Token, Usuario
 
-# Rodar os testes com: python manage.py test users
+
+def criar_usuario(senha='senha12345', **extra):
+    usuario = Usuario(
+        nome='Ana', sobrenome='Souza', apelido='ana',
+        data_nascimento='10/04/1995', email='ana@exemplo.com', **extra,
+    )
+    usuario.definir_senha(senha)
+    usuario.save()
+    return usuario
 
 
 @patch('users.services.NotificacaoService')
@@ -15,18 +22,12 @@ class ResetarSenhaTests(TestCase):
     URL = '/api/resetar-senha'
 
     def setUp(self):
-        self.usuario = Usuario(
-            nome='Ana', sobrenome='Souza', apelido='ana',
-            data_nascimento='10/04/1995', email='ana@exemplo.com',
-        )
-        self.usuario.definir_senha('senha12345')
-        self.usuario.save()
+        self.usuario = criar_usuario()
 
     def pedir(self, email='ana@exemplo.com'):
         return self.client.post(self.URL, {'email': email}, content_type='application/json')
 
     def envelhecer_pedidos(self, minutos):
-        """Simula a passagem do tempo recuando a data dos pedidos já feitos."""
         for pedido in SolicitacaoRedefinicaoSenha.objects.all():
             pedido.criado_em -= timedelta(minutes=minutos)
             pedido.save(update_fields=['criado_em'])
@@ -86,6 +87,10 @@ class ResetarSenhaTests(TestCase):
     def test_email_invalido(self, notificacao):
         self.assertEqual(self.pedir('nao-e-email').status_code, 400)
 
+    def test_email_maior_que_a_coluna(self, notificacao):
+        self.assertEqual(self.pedir('a' * 150 + '@exemplo.com').status_code, 400)
+        self.assertFalse(SolicitacaoRedefinicaoSenha.objects.exists())
+
     def test_falha_no_envio_nao_derruba_o_pedido(self, notificacao):
         notificacao.return_value.enviar_recuperacao_senha.side_effect = Exception('Brevo fora')
         self.assertEqual(self.pedir().status_code, 200)
@@ -96,12 +101,7 @@ class ConfirmarResetarSenhaTests(TestCase):
     URL = '/api/resetar-senha/confirmar'
 
     def setUp(self):
-        self.usuario = Usuario(
-            nome='Ana', sobrenome='Souza', apelido='ana',
-            data_nascimento='10/04/1995', email='ana@exemplo.com',
-        )
-        self.usuario.definir_senha('senha-antiga')
-        self.usuario.save()
+        self.usuario = criar_usuario(senha='senha-antiga')
 
     def gerar_token(self, notificacao):
         self.client.post(
@@ -154,12 +154,7 @@ class ConfirmarResetarSenhaTests(TestCase):
 @patch('users.services.NotificacaoService')
 class LoginDoisFatoresTests(TestCase):
     def setUp(self):
-        self.usuario = Usuario(
-            nome='Ana', sobrenome='Souza', apelido='ana',
-            data_nascimento='10/04/1995', email='ana@exemplo.com',
-        )
-        self.usuario.definir_senha('senha12345')
-        self.usuario.save()
+        self.usuario = criar_usuario()
 
     def login(self, contato='ana@exemplo.com', senha='senha12345'):
         return self.client.post(
@@ -199,7 +194,6 @@ class LoginDoisFatoresTests(TestCase):
 
         self.assertEqual(resposta.status_code, 200)
         self.assertEqual(resposta.json()['token'], Token.objects.get(usuario=self.usuario).chave)
-        # Código só vale uma vez
         self.assertEqual(self.verificar(desafio, self.codigo_enviado(notificacao)).status_code, 410)
 
     def test_codigo_errado_permite_tentar_de_novo(self, notificacao):
@@ -262,12 +256,7 @@ class LoginGoogleTests(TestCase):
     URL = '/api/login/google'
 
     def setUp(self):
-        self.usuario = Usuario(
-            nome='Ana', sobrenome='Souza', apelido='ana',
-            data_nascimento='10/04/1995', email='ana@exemplo.com',
-        )
-        self.usuario.definir_senha('senha12345')
-        self.usuario.save()
+        self.usuario = criar_usuario()
 
     def dados_google(self, **extra):
         return {
@@ -356,7 +345,6 @@ class CadastroGoogleTests(TestCase):
         self.assertEqual(usuario.data_nascimento, '15/01/2000')
         self.assertEqual(resposta.json()['token'], Token.objects.get(usuario=usuario).chave)
         self.assertEqual(usuario.consentimentos.count(), 2)
-        # Sem senha: nenhuma senha passa no login por senha
         self.assertFalse(usuario.verificar_senha(''))
         self.assertFalse(usuario.verificar_senha('None'))
         notificacao.return_value.enviar_confirmacao_cadastro.assert_called_once_with(usuario, via_google=True)
@@ -387,14 +375,40 @@ class CadastroGoogleTests(TestCase):
         self.assertEqual(self.cadastrar(apelido='outra').status_code, 409)
 
 
+@patch('users.services.NotificacaoService')
+class CadastroNoMySQLTests(TestCase):
+    URL = '/api/usuarios'
+
+    def cadastrar(self, **extra):
+        dados = {
+            'nome': 'Bia', 'sobrenome': 'Lima', 'data_nascimento': '2000-01-15',
+            'email': 'bia@exemplo.com', 'senha': 'senha12345', 'termos_aceitos': True,
+        }
+        return self.client.post(self.URL, {**dados, **extra}, content_type='application/json')
+
+    def test_nome_longo_sem_apelido_cabe_na_coluna_do_apelido(self, notificacao):
+        self.assertEqual(self.cadastrar(nome='A' * 80).status_code, 201)
+        self.assertEqual(Usuario.objects.get().apelido, 'A' + 'a' * 49)
+
+    def test_email_maior_que_a_coluna(self, notificacao):
+        self.assertEqual(self.cadastrar(email='a' * 150 + '@exemplo.com').status_code, 400)
+
+    def test_celular_maior_que_a_coluna(self, notificacao):
+        self.assertEqual(self.cadastrar(celular='1' * 25).status_code, 400)
+
+    def test_emoji_no_apelido(self, notificacao):
+        self.assertEqual(self.cadastrar(apelido='Bia 🌸').status_code, 201)
+        self.assertEqual(Usuario.objects.get().apelido, 'Bia 🌸')
+
+    def test_email_com_acento_e_outra_conta(self, notificacao):
+        self.assertEqual(self.cadastrar(email='joão@exemplo.com').status_code, 201)
+        self.assertFalse(Usuario.objects.filter(email='joao@exemplo.com').exists())
+        self.assertEqual(self.cadastrar(email='joao@exemplo.com').status_code, 201)
+
+
 class SessaoTests(TestCase):
     def setUp(self):
-        self.usuario = Usuario(
-            nome='Ana', sobrenome='Souza', apelido='ana', data_nascimento='10/04/1995',
-            email='ana@exemplo.com', foto_url='https://lh3.googleusercontent.com/a/foto',
-        )
-        self.usuario.definir_senha('senha12345')
-        self.usuario.save()
+        self.usuario = criar_usuario(foto_url='https://lh3.googleusercontent.com/a/foto')
         self.token = Token.objects.create(usuario=self.usuario)
         self.auth = {'HTTP_AUTHORIZATION': f'Bearer {self.token.chave}'}
 
@@ -413,3 +427,99 @@ class SessaoTests(TestCase):
     def test_logout_sem_token(self):
         self.assertEqual(self.client.post('/api/logout').status_code, 204)
         self.assertTrue(Token.objects.exists())
+
+
+class PerfilTests(TestCase):
+    def setUp(self):
+        self.usuario = Usuario(
+            nome='Ana', sobrenome='Souza', apelido='ana', data_nascimento='10/04/1995',
+            email='ana@exemplo.com', celular='11 90000-0001',
+        )
+        self.usuario.definir_senha('senha12345')
+        self.usuario.save()
+        for tipo in Consentimento.Tipo.values:
+            Consentimento.objects.create(usuario=self.usuario, tipo=tipo, versao_documento='1.0', aceito=True)
+        self.auth = {'HTTP_AUTHORIZATION': f'Bearer {Token.objects.create(usuario=self.usuario).chave}'}
+
+    def corrigir(self, dados):
+        return self.client.patch('/api/perfil', dados, content_type='application/json', **self.auth)
+
+    def revogar(self, tipo, aceito):
+        return self.client.post(
+            '/api/perfil/consentimentos', {'tipo': tipo, 'aceito': aceito},
+            content_type='application/json', **self.auth,
+        )
+
+    def test_perfil_traz_dados_e_consentimentos(self):
+        corpo = self.client.get('/api/perfil', **self.auth).json()
+        self.assertEqual(corpo['sobrenome'], 'Souza')
+        self.assertEqual(corpo['data_nascimento'], '10/04/1995')
+        self.assertEqual(len(corpo['consentimentos']), 2)
+        self.assertTrue(all(c['aceito'] for c in corpo['consentimentos']))
+
+    def test_perfil_exige_token(self):
+        self.assertEqual(self.client.patch('/api/perfil', {}, content_type='application/json').status_code, 401)
+        self.assertEqual(self.client.post('/api/perfil/consentimentos').status_code, 401)
+
+    def test_corrige_nome_apelido_e_celular(self):
+        resposta = self.corrigir({'nome': 'maria  clara', 'apelido': 'mari', 'celular': '(11) 98888-7777'})
+        self.assertEqual(resposta.status_code, 200)
+        self.usuario.refresh_from_db()
+        self.assertEqual((self.usuario.nome, self.usuario.apelido), ('Maria Clara', 'mari'))
+        self.assertEqual(self.usuario.celular, '(11) 98888-7777')
+
+    def test_so_atualiza_os_campos_enviados(self):
+        self.corrigir({'apelido': 'aninha'})
+        self.usuario.refresh_from_db()
+        self.assertEqual((self.usuario.nome, self.usuario.celular), ('Ana', '11 90000-0001'))
+
+    def test_apelido_vazio_volta_para_o_nome(self):
+        self.corrigir({'apelido': ''})
+        self.usuario.refresh_from_db()
+        self.assertEqual(self.usuario.apelido, 'Ana')
+
+    def test_validacoes(self):
+        self.assertEqual(self.corrigir({'nome': '  '}).status_code, 400)
+        self.assertEqual(self.corrigir({'sobrenome': 'x' * 101}).status_code, 400)
+        self.assertEqual(self.corrigir({'apelido': 'x' * 51}).status_code, 400)
+        self.assertEqual(self.corrigir({'celular': '123'}).status_code, 400)
+
+    def test_celular_de_outra_conta_recusado(self):
+        outra = Usuario(nome='Bia', sobrenome='Lima', apelido='bia', data_nascimento='01/01/2000',
+                        email='bia@exemplo.com', celular='11 97777-0000')
+        outra.definir_senha('senha12345')
+        outra.save()
+        self.assertEqual(self.corrigir({'celular': '11 97777-0000'}).status_code, 409)
+
+    def test_email_e_nascimento_nao_mudam(self):
+        self.corrigir({'email': 'outro@exemplo.com', 'data_nascimento': '01/01/2015'})
+        self.usuario.refresh_from_db()
+        self.assertEqual((self.usuario.email, self.usuario.data_nascimento), ('ana@exemplo.com', '10/04/1995'))
+
+    def test_revogar_cria_novo_registro_sem_apagar_o_anterior(self):
+        resposta = self.revogar('termos_uso', False)
+        self.assertEqual(resposta.status_code, 200)
+        registros = Consentimento.objects.filter(usuario=self.usuario, tipo='termos_uso')
+        self.assertEqual(registros.count(), 2)
+        self.assertEqual([r.aceito for r in registros.order_by('data_consentimento')], [True, False])
+        self.assertTrue(self.usuario.tem_consentimento_revogado())
+
+    def test_revogado_bloqueia_a_trilha_mas_nao_o_perfil(self):
+        self.revogar('politica_privacidade', False)
+        self.assertEqual(self.client.get('/api/trilha', **self.auth).status_code, 403)
+        self.assertEqual(self.client.get('/api/dashboard', **self.auth).status_code, 403)
+        self.assertEqual(self.client.get('/api/perfil', **self.auth).status_code, 200)
+
+    def test_reativar_libera_de_novo(self):
+        self.revogar('politica_privacidade', False)
+        self.revogar('politica_privacidade', True)
+        self.assertFalse(Usuario.objects.get(pk=self.usuario.pk).tem_consentimento_revogado())
+        self.assertEqual(Consentimento.objects.filter(usuario=self.usuario, tipo='politica_privacidade').count(), 3)
+
+    def test_consentimento_invalido(self):
+        self.assertEqual(self.revogar('inexistente', False).status_code, 400)
+        self.assertEqual(self.revogar('termos_uso', 'sim').status_code, 400)
+
+    def test_repetir_o_mesmo_estado_nao_duplica(self):
+        self.revogar('termos_uso', True)
+        self.assertEqual(Consentimento.objects.filter(usuario=self.usuario, tipo='termos_uso').count(), 1)

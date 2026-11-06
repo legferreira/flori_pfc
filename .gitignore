@@ -13,10 +13,6 @@ env/
 *.env
 !.env.example
 
-# Banco local de desenvolvimento
-*.sqlite3
-db.sqlite3
-
 # Django
 *.log
 /backend/staticfiles/

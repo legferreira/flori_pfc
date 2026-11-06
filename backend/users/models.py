@@ -1,105 +1,81 @@
-
 from datetime import date, datetime
-
-from django.contrib.auth.hashers import check_password, make_password
-
-from django.db import models
-
+import hashlib
+import secrets
 import uuid
 
-import secrets
+from django.contrib.auth.hashers import check_password, make_password
+from django.db import models
 
-import hashlib
 
+def _sha256(texto):
+    return hashlib.sha256(texto.encode()).hexdigest()
 
 
 class Usuario(models.Model):
-    """Dados da usuária e as regras que dependem apenas deles."""
+    IDADE_MINIMA = 13
+    TAMANHO_MINIMO_SENHA = 8
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-
-   
-    IDADE_MINIMA = 13          # usada em tem_idade_minima() e por CadastroUsuario._validar_nascimento (services.py)
-    TAMANHO_MINIMO_SENHA = 8   # usada por CadastroUsuario._validar_senha (services.py)
-
-   
     nome = models.CharField(max_length=100)
     sobrenome = models.CharField(max_length=100)
     apelido = models.CharField(max_length=50, blank=True)
     data_nascimento = models.CharField(max_length=10)
-    email = models.EmailField(max_length=150, unique=True, null=True, blank=True)
+    email = models.EmailField(max_length=150, unique=True, null=True, blank=True, db_collation='utf8mb4_bin')
     celular = models.CharField(max_length=20, unique=True, null=True, blank=True)
     senha_hash = models.CharField(max_length=255)
-    # Foto do perfil Google (campo 'picture' do token). Só existe para quem
-    # entrou/cadastrou pelo Google; atualizada a cada login com Google.
     foto_url = models.URLField(max_length=500, null=True, blank=True)
     criado_em = models.DateTimeField(auto_now_add=True)
-
 
     class Meta:
         db_table = 'users'
 
-    
     def __str__(self):
         return self.apelido
 
     @property
     def idade(self):
-        """Derivada da data de nascimento (texto 'DD/MM/AAAA'). Nunca armazenada como número: idade guardada envelhece errado."""
         nascimento = datetime.strptime(self.data_nascimento, '%d/%m/%Y').date()
         hoje = date.today()
         idade = hoje.year - nascimento.year
-        # Se ainda não chegou o mês/dia do aniversário este ano, subtrai 1
-        # (comparação de tuplas (mês, dia)
         if (hoje.month, hoje.day) < (nascimento.month, nascimento.day):
             idade -= 1
         return idade
 
-  
+    def consentimentos_atuais(self):
+        atuais = {}
+        for c in self.consentimentos.order_by('data_consentimento'):
+            atuais[c.tipo] = c
+        return atuais
+
+    def tem_consentimento_revogado(self):
+        return any(not c.aceito for c in self.consentimentos_atuais().values())
+
     def tem_idade_minima(self):
         return self.idade >= self.IDADE_MINIMA
 
-  
     def definir_senha(self, senha_pura):
         self.senha_hash = make_password(senha_pura)
 
-    # Conta criada pelo Google, sem senha: make_password(None) gera um valor
-    # que check_password nunca aceita, login por senha fica impossível até
-    # a usuária criar uma em "Esqueci minha senha".
     def definir_sem_senha(self):
         self.senha_hash = make_password(None)
-
 
     def verificar_senha(self, senha_pura):
         return check_password(senha_pura, self.senha_hash)
 
 
 class Consentimento(models.Model):
-    """Aceite datado e versionado — a prova de consentimento que a LGPD exige (Art. 8º, §1º).
-
-    Uma usuária tem vários ao longo do tempo: cada aceite ou revogação vira uma linha nova,
-    e nenhuma é sobrescrita. É por isso que isso não cabia num booleano em Usuario.
-    """
-
-    
     class Tipo(models.TextChoices):
         TERMOS_USO = 'termos_uso', 'Termos de uso'
         POLITICA_PRIVACIDADE = 'politica_privacidade', 'Política de privacidade'
 
-    
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  
     usuario = models.ForeignKey(
         Usuario, on_delete=models.PROTECT, related_name='consentimentos'
     )
-    
     tipo = models.CharField(max_length=30, choices=Tipo.choices)
     versao_documento = models.CharField(max_length=20)
     aceito = models.BooleanField()
-    # Preenchido automaticamente na criação (mesmo mecanismo de Usuario.criado_em).
     data_consentimento = models.DateTimeField(auto_now_add=True)
-    # Guarda o IP de quem consentiu (calculado em views.py -> ip_do_cliente()),
-    # opcional pois nem sempre é possível obter (null=True, blank=True).
     ip_origem = models.GenericIPAddressField(null=True, blank=True)
 
     class Meta:
@@ -111,9 +87,6 @@ class Consentimento(models.Model):
 
 
 class Token(models.Model):
-    """Token de sessão emitido no login — comprova que a requisição vem de uma usuária autenticada."""
-
-   
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     chave = models.CharField(max_length=64, unique=True, editable=False)
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='tokens')
@@ -132,13 +105,6 @@ class Token(models.Model):
 
 
 class LogAtividade(models.Model):
-    """Registro de auditoria: quem fez o quê e quando (cadastro, login).
-
-    Item de entrega separado do Consentimento — este é log técnico/operacional,
-    não prova legal de consentimento, mas segue o mesmo espírito de nunca
-    sobrescrever, só acumular linhas novas.
-    """
-
     class Acao(models.TextChoices):
         CADASTRO = 'cadastro', 'Cadastro realizado'
         LOGIN_SUCESSO = 'login_sucesso', 'Login com sucesso'
@@ -151,7 +117,6 @@ class LogAtividade(models.Model):
         LOGOUT = 'logout', 'Saiu da conta'
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-   
     usuario = models.ForeignKey(
         Usuario, on_delete=models.SET_NULL, null=True, blank=True, related_name='logs'
     )
@@ -169,21 +134,12 @@ class LogAtividade(models.Model):
 
 
 class SolicitacaoRedefinicaoSenha(models.Model):
-    """Cada pedido de "esqueci a senha" — serve de trava de reenvio e guarda o token provisório.
-
-    Registra o pedido pelo E-MAIL digitado, exista ou não uma usuária com ele:
-    assim o intervalo de espera é o mesmo nos dois casos e a resposta da API
-    não revela quais e-mails estão cadastrados (enumeração de usuárias).
-    """
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(max_length=150)
-    
     usuario = models.ForeignKey(
         Usuario, on_delete=models.CASCADE, null=True, blank=True,
         related_name='solicitacoes_redefinicao_senha',
     )
-    # Só o hash SHA-256 do token vai para o banco 
     token_hash = models.CharField(max_length=64, unique=True, null=True, blank=True)
     expira_em = models.DateTimeField(null=True, blank=True)
     usado_em = models.DateTimeField(null=True, blank=True)
@@ -196,28 +152,20 @@ class SolicitacaoRedefinicaoSenha(models.Model):
 
     @staticmethod
     def gerar_hash(token):
-        return hashlib.sha256(token.encode()).hexdigest()
+        return _sha256(token)
 
     def __str__(self):
         return f'{self.email} — redefinição de senha em {self.criado_em}'
 
 
 class CodigoAutenticacao(models.Model):
-    """Código de 6 dígitos da autenticação em dois fatores (2FA), enviado por e-mail no login.
-
-    Depois que contato + senha conferem, o login fica "pendente" até a usuária
-    digitar o código. O 'desafio' identifica esse login pendente: o front-end
-    recebe o desafio em texto e o reenvia junto com o código na verificação.
-    """
-
+    QUANTIDADE_DIGITOS = 6
     VALIDADE_MINUTOS = 15
     MAXIMO_TENTATIVAS = 5
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='codigos_autenticacao')
-    # Como o token de redefinição de senha: só o hash SHA-256 fica no banco.
     desafio_hash = models.CharField(max_length=64, unique=True)
-    # Hash do código (mesmo make_password das senhas) — o código em texto só existe no e-mail.
     codigo_hash = models.CharField(max_length=255)
     tentativas = models.PositiveSmallIntegerField(default=0)
     expira_em = models.DateTimeField()
@@ -231,7 +179,7 @@ class CodigoAutenticacao(models.Model):
 
     @staticmethod
     def gerar_hash_desafio(desafio):
-        return hashlib.sha256(desafio.encode()).hexdigest()
+        return _sha256(desafio)
 
     def definir_codigo(self, codigo):
         self.codigo_hash = make_password(codigo)

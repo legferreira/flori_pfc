@@ -1,21 +1,12 @@
-// Flori — "Continuar com Google" no passo 2 do cadastro
-//
-// Já existe conta com esse e-mail do Google: entra direto.
-// Não existe: liga o modo Google do cadastro (ativarModoGoogle, em
-// cadastro.js) — passo 3 só com os termos, sem senha.
-
 import { continuarComGoogle, CHAVE_CADASTRO_GOOGLE } from './compartilhado/google-auth.js';
 
 const botaoGoogle = document.getElementById('botaoGoogleCadastro');
 const erroGoogle = document.getElementById('erroGoogle');
 
-// Veio da tela de login ("Continuar com Google" sem conta): retoma com o
-// perfil Google que ela guardou. O passo 1 ainda precisa ser preenchido.
 try {
   const pendente = JSON.parse(sessionStorage.getItem(CHAVE_CADASTRO_GOOGLE));
   if (pendente && pendente.idToken) ativarModoGoogle(pendente);
 } catch {
-  // sessionStorage indisponível ou valor corrompido: segue o cadastro normal.
 }
 
 botaoGoogle.addEventListener('click', async () => {
@@ -29,9 +20,9 @@ botaoGoogle.addEventListener('click', async () => {
       if (status === 200 && resultado.cadastro_necessario) {
         const perfil = { ...resultado, idToken };
         sessionStorage.setItem(CHAVE_CADASTRO_GOOGLE, JSON.stringify(perfil));
-        ativarModoGoogle(perfil); // cadastro.js
+        ativarModoGoogle(perfil);
       } else if (status === 200) {
-        concluirLogin(resultado); // já tinha conta — sessao.js
+        concluirLogin(resultado);
         return;
       } else {
         throw new Error(resultado.mensagem);

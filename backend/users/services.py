@@ -1,4 +1,3 @@
-
 from datetime import date, timedelta
 import logging
 import math
@@ -7,19 +6,15 @@ import secrets
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from django.utils import timezone
-
-
 from django.db import IntegrityError, transaction
-
+from django.utils import timezone
 
 from .models import (
     CodigoAutenticacao, Consentimento, LogAtividade, SolicitacaoRedefinicaoSenha, Token, Usuario,
 )
-from .notificacoes import ErroNotificacao, NotificacaoService
+from .notificacoes import NotificacaoService
 
 logger = logging.getLogger(__name__)
-
 
 VERSAO_TERMOS_USO = '1.0'
 VERSAO_POLITICA_PRIVACIDADE = '1.0'
@@ -27,38 +22,59 @@ VERSAO_POLITICA_PRIVACIDADE = '1.0'
 TAMANHO_MAXIMO_NOME = 100
 TAMANHO_MAXIMO_SOBRENOME = 100
 TAMANHO_MAXIMO_APELIDO = 50
+TAMANHO_MAXIMO_EMAIL = 150
+TAMANHO_MAXIMO_CELULAR = 20
 
 
-class ErroCadastro(Exception):
-    def __init__(self, mensagem, status=400):
-        super().__init__(mensagem)  # inicializa a Exception padrão do Python com a mensagem
-        self.mensagem = mensagem    # guarda a mensagem como atributo, pra views.py ler via e.mensagem
-        self.status = status        # guarda o status HTTP como atributo, pra views.py ler via e.status
+class ErroServico(Exception):
+    STATUS_PADRAO = 400
+
+    def __init__(self, mensagem, status=None):
+        super().__init__(mensagem)
+        self.mensagem = mensagem
+        self.status = status or self.STATUS_PADRAO
+
+
+class ErroCadastro(ErroServico):
+    pass
+
+
+class ErroLogin(ErroServico):
+    STATUS_PADRAO = 401
+
+
+class ErroRedefinicaoSenha(ErroServico):
+    def __init__(self, mensagem, status=None, espera_segundos=0):
+        super().__init__(mensagem, status)
+        self.espera_segundos = espera_segundos
+
+
+def _texto(valor):
+    return valor.strip() if isinstance(valor, str) else ''
+
+
+def _senha(valor):
+    return valor if isinstance(valor, str) else ''
+
+
+def _capitalizar(texto):
+    return ' '.join(palavra[:1].upper() + palavra[1:].lower() for palavra in texto.split())
 
 
 class CadastroUsuario:
-    """Cadastra uma usuária a partir dos dados crus da requisição.
-    Cada regra vive em seu próprio método; `executar()` apenas define a ordem.
-    """
-
-    
     VIA_GOOGLE = False
 
-
     def __init__(self, dados, ip_origem=None):
-        self._dados = dados          # dict original, guardado para os métodos usarem .get()
-        self.ip_origem = ip_origem   # IP calculado por views.ip_do_cliente(), repassado ao Consentimento
-        self.nome = self._capitalizar(self._texto('nome'))
-        self.sobrenome = self._capitalizar(self._texto('sobrenome'))
-        self.apelido = self._texto('apelido')
-        self.email = self._texto('email').lower() or None       # normaliza para minúsculas; string vazia vira None
-        self.celular = self._texto('celular') or None            # string vazia vira None
-        self.senha = self._dados.get('senha') if isinstance(self._dados.get('senha'), str) else ''
-        self.termos_aceitos = bool(self._dados.get('termos_aceitos'))
-        self.data_nascimento = None 
-
-
-# etapas do cadastro, chamando os metodos de validacao e persistencia
+        self._dados = dados
+        self.ip_origem = ip_origem
+        self.nome = _capitalizar(_texto(dados.get('nome')))
+        self.sobrenome = _capitalizar(_texto(dados.get('sobrenome')))
+        self.apelido = _texto(dados.get('apelido'))
+        self.email = _texto(dados.get('email')).lower() or None
+        self.celular = _texto(dados.get('celular')) or None
+        self.senha = _senha(dados.get('senha'))
+        self.termos_aceitos = bool(dados.get('termos_aceitos'))
+        self.data_nascimento = None
 
     def executar(self):
         self._validar_identificacao()
@@ -68,26 +84,9 @@ class CadastroUsuario:
         self._validar_consentimento()
         return self._persistir()
 
-    # lê um campo do dict self._dados e devolve a versão "limpa" (sem espaços
-    # nas pontas). Se o valor não for string (ausente, None, número...), devolve ''.
-
-    def _texto(self, campo):
-        valor = self._dados.get(campo)
-        return valor.strip() if isinstance(valor, str) else ''
-
-    # Normaliza nome/sobrenome pra "Primeira Maiúscula" independente de como a
-    # pessoa digitou 
-    def _capitalizar(self, texto):
-        return ' '.join(palavra[:1].upper() + palavra[1:].lower() for palavra in texto.split())
-
-    # regras de negócio  
-    # Aqui separei as responsabilidades
-
-
     def _validar_identificacao(self):
         if not self.nome or not self.sobrenome:
             raise ErroCadastro('Nome e sobrenome são obrigatórios.')
-       
         if len(self.nome) > TAMANHO_MAXIMO_NOME:
             raise ErroCadastro(f'Nome muito longo (máximo {TAMANHO_MAXIMO_NOME} caracteres).')
         if len(self.sobrenome) > TAMANHO_MAXIMO_SOBRENOME:
@@ -108,9 +107,7 @@ class CadastroUsuario:
         if nascimento > date.today():
             raise ErroCadastro('Data de nascimento não pode estar no futuro.')
 
-        
         nascimento_formatado = nascimento.strftime('%d/%m/%Y')
-
 
         if not Usuario(data_nascimento=nascimento_formatado).tem_idade_minima():
             raise ErroCadastro('Ainda não é possível criar a conta com essa data de nascimento.')
@@ -120,6 +117,10 @@ class CadastroUsuario:
     def _validar_contato(self):
         if not self.email:
             raise ErroCadastro('E-mail é obrigatório.')
+        if len(self.email) > TAMANHO_MAXIMO_EMAIL:
+            raise ErroCadastro(f'E-mail muito longo (máximo {TAMANHO_MAXIMO_EMAIL} caracteres).')
+        if self.celular and len(self.celular) > TAMANHO_MAXIMO_CELULAR:
+            raise ErroCadastro(f'Celular muito longo (máximo {TAMANHO_MAXIMO_CELULAR} caracteres).')
 
     def _validar_senha(self):
         if len(self.senha) < Usuario.TAMANHO_MINIMO_SENHA:
@@ -131,24 +132,20 @@ class CadastroUsuario:
         if not self.termos_aceitos:
             raise ErroCadastro('É necessário aceitar os termos de uso.')
 
-    # persistência aqui estou salvando as informacoes}_persistir() é a última etapa do executar(): é onde o cadastro e salvo no banco de dados#
-    
     def _persistir(self):
         usuario = Usuario(
             nome=self.nome,
             sobrenome=self.sobrenome,
-            apelido=self.apelido or self.nome,
+            apelido=self.apelido or self.nome[:TAMANHO_MAXIMO_APELIDO].strip(),
             data_nascimento=self.data_nascimento,
             email=self.email,
             celular=self.celular,
         )
-        # Transforma a senha em texto puro (self.senha) em hash e grava em
-        # usuario.senha_hash (CadastroUsuarioGoogle sobrescreve: conta sem senha).
         self._definir_senha(usuario)
 
         try:
             with transaction.atomic():
-                usuario.save()  
+                usuario.save()
                 self._registrar_consentimentos(usuario)
                 LogAtividade.objects.create(
                     usuario=usuario,
@@ -158,13 +155,7 @@ class CadastroUsuario:
         except IntegrityError:
             raise self._erro_de_duplicidade()
 
-
-        if usuario.email:
-            try:
-                NotificacaoService().enviar_confirmacao_cadastro(usuario, via_google=self.VIA_GOOGLE)
-            except Exception:
-                logger.exception('Falha ao enviar e-mail de confirmação de cadastro')
-
+        self._enviar_boas_vindas(usuario)
         return usuario
 
     def _definir_senha(self, usuario):
@@ -185,8 +176,13 @@ class CadastroUsuario:
             )
         ])
 
+    def _enviar_boas_vindas(self, usuario):
+        try:
+            NotificacaoService().enviar_confirmacao_cadastro(usuario, via_google=self.VIA_GOOGLE)
+        except Exception:
+            logger.exception('Falha ao enviar e-mail de confirmação de cadastro')
+
     def _erro_de_duplicidade(self):
-        """O banco recusou por UNIQUE — descobre qual contato já estava em uso."""
         if self.email and Usuario.objects.filter(email=self.email).exists():
             return ErroCadastro('Esse e-mail já está em uso.', status=409)
         if self.celular and Usuario.objects.filter(celular=self.celular).exists():
@@ -194,16 +190,7 @@ class CadastroUsuario:
         return ErroCadastro('Não foi possível concluir o cadastro.', status=409)
 
 
-
-class ErroLogin(Exception):
-    def __init__(self, mensagem, status=401):
-        super().__init__(mensagem)
-        self.mensagem = mensagem
-        self.status = status
-
-
 def iniciar_sessao(usuario, ip_origem=None, acao=LogAtividade.Acao.LOGIN_SUCESSO):
-    """Emite o Token de sessão e registra o login — último passo de qualquer login bem-sucedido."""
     token = Token.objects.create(usuario=usuario)
     LogAtividade.objects.create(
         usuario=usuario,
@@ -213,36 +200,34 @@ def iniciar_sessao(usuario, ip_origem=None, acao=LogAtividade.Acao.LOGIN_SUCESSO
     return token
 
 
+class ResultadoLogin:
+    def __init__(self, usuario, token=None, desafio=None):
+        self.usuario = usuario
+        self.token = token
+        self.desafio = desafio
+
+    @property
+    def requer_codigo(self):
+        return self.desafio is not None
+
+
 class LoginUsuario:
-    """Autentica uma usuária por contato (e-mail ou celular) + senha.
-
-    Com e-mail cadastrado, a senha certa NÃO libera o login ainda: envia um
-    código de verificação (2FA) e devolve o desafio, o login termina em
-    VerificarCodigoAutenticacao. Sem e-mail (conta só com celular) não há
-    para onde mandar o código, então emite o Token direto.
-    """
-
     def __init__(self, dados, ip_origem=None):
-        self._dados = dados
         self.ip_origem = ip_origem
-        self.contato = self._texto('contato') or self._texto('email') or self._texto('celular')
-        self.senha = self._dados.get('senha') if isinstance(self._dados.get('senha'), str) else ''
-
-    def _texto(self, campo):
-        valor = self._dados.get(campo)
-        return valor.strip() if isinstance(valor, str) else ''
+        self.contato = (
+            _texto(dados.get('contato')) or _texto(dados.get('email')) or _texto(dados.get('celular'))
+        )
+        self.senha = _senha(dados.get('senha'))
 
     def executar(self):
         if not self.contato or not self.senha:
             raise ErroLogin('Informe o contato e a senha.', status=400)
-
 
         usuario = (
             Usuario.objects.filter(email=self.contato.lower()).first()
             or Usuario.objects.filter(celular=self.contato).first()
         )
 
-        
         if not usuario or not usuario.verificar_senha(self.senha):
             LogAtividade.objects.create(
                 usuario=usuario,
@@ -258,40 +243,24 @@ class LoginUsuario:
         return ResultadoLogin(usuario, desafio=desafio)
 
 
-class ResultadoLogin:
-    """O que LoginUsuario devolve: OU o token (login concluído) OU o desafio (falta o código)."""
-
-    def __init__(self, usuario, token=None, desafio=None):
-        self.usuario = usuario
-        self.token = token
-        self.desafio = desafio
-
-    @property
-    def requer_codigo(self):
-        return self.desafio is not None
-
-
 def mascarar_email(email):
-    """'rafael@gmail.com' -> 'ra****@gmail.com' — mostra para onde foi o código sem expor o e-mail inteiro."""
     nome, _, dominio = email.partition('@')
     visivel = nome[:2] if len(nome) > 2 else nome[:1]
     return f'{visivel}{"*" * max(len(nome) - len(visivel), 1)}@{dominio}'
 
 
 class EnviarCodigoAutenticacao:
-    """Gera o código de 6 dígitos, grava só o hash e envia por e-mail. Devolve o desafio."""
-
     def __init__(self, usuario, ip_origem=None):
         self.usuario = usuario
         self.ip_origem = ip_origem
 
     def executar(self):
         agora = timezone.now()
-        codigo = f'{secrets.randbelow(10 ** 6):06d}'
+        digitos = CodigoAutenticacao.QUANTIDADE_DIGITOS
+        codigo = f'{secrets.randbelow(10 ** digitos):0{digitos}d}'
         desafio = secrets.token_urlsafe(32)
 
         with transaction.atomic():
-           
             CodigoAutenticacao.objects.filter(
                 usuario=self.usuario, usado_em__isnull=True, expira_em__gt=agora,
             ).update(expira_em=agora)
@@ -305,7 +274,6 @@ class EnviarCodigoAutenticacao:
             registro.definir_codigo(codigo)
             registro.save()
 
-        
         try:
             NotificacaoService().enviar_codigo_autenticacao(
                 self.usuario, codigo, validade_minutos=CodigoAutenticacao.VALIDADE_MINUTOS,
@@ -328,28 +296,23 @@ class EnviarCodigoAutenticacao:
 
 
 class VerificarCodigoAutenticacao:
-    """Segunda etapa do login: confere o código digitado e, se bater, emite o Token."""
-
     MENSAGEM_CODIGO_INVALIDO = 'Código inválido. Tente novamente.'
     MENSAGEM_EXPIRADO = 'Este código expirou. Faça login de novo para receber um novo código.'
 
     def __init__(self, dados, ip_origem=None):
         self.ip_origem = ip_origem
-        desafio = dados.get('desafio')
+        self.desafio = _texto(dados.get('desafio'))
         codigo = dados.get('codigo')
-        self.desafio = desafio.strip() if isinstance(desafio, str) else ''
         self.codigo = ''.join(c for c in codigo if c.isdigit()) if isinstance(codigo, str) else ''
 
     def executar(self):
         if not self.desafio:
             raise ErroLogin(self.MENSAGEM_EXPIRADO, status=410)
-        if len(self.codigo) != 6:
-            raise ErroLogin('Digite os 6 números do código.', status=400)
+        if len(self.codigo) != CodigoAutenticacao.QUANTIDADE_DIGITOS:
+            raise ErroLogin(f'Digite os {CodigoAutenticacao.QUANTIDADE_DIGITOS} números do código.', status=400)
 
         agora = timezone.now()
-        erro = None
         with transaction.atomic():
-            
             registro = (
                 CodigoAutenticacao.objects
                 .select_for_update()
@@ -357,24 +320,8 @@ class VerificarCodigoAutenticacao:
                 .filter(desafio_hash=CodigoAutenticacao.gerar_hash_desafio(self.desafio))
                 .first()
             )
-            if not registro or not registro.pode_ser_usado(agora):
-                erro = ErroLogin(self.MENSAGEM_EXPIRADO, status=410)
-            elif not registro.confere(self.codigo):
-                registro.tentativas += 1
-                registro.save(update_fields=['tentativas'])
-                LogAtividade.objects.create(
-                    usuario=registro.usuario,
-                    acao=LogAtividade.Acao.CODIGO_2FA_INVALIDO,
-                    ip_origem=self.ip_origem,
-                )
-                if registro.tentativas >= CodigoAutenticacao.MAXIMO_TENTATIVAS:
-                    erro = ErroLogin(
-                        'Você errou o código muitas vezes. Faça login de novo para receber um novo código.',
-                        status=410,
-                    )
-                else:
-                    erro = ErroLogin(self.MENSAGEM_CODIGO_INVALIDO, status=400)
-            else:
+            erro = self._conferir(registro, agora)
+            if not erro:
                 registro.usado_em = agora
                 registro.save(update_fields=['usado_em'])
                 token = iniciar_sessao(registro.usuario, self.ip_origem)
@@ -383,20 +330,33 @@ class VerificarCodigoAutenticacao:
             raise erro
         return registro.usuario, token
 
+    def _conferir(self, registro, agora):
+        if not registro or not registro.pode_ser_usado(agora):
+            return ErroLogin(self.MENSAGEM_EXPIRADO, status=410)
+        if registro.confere(self.codigo):
+            return None
+
+        registro.tentativas += 1
+        registro.save(update_fields=['tentativas'])
+        LogAtividade.objects.create(
+            usuario=registro.usuario,
+            acao=LogAtividade.Acao.CODIGO_2FA_INVALIDO,
+            ip_origem=self.ip_origem,
+        )
+        if registro.tentativas >= CodigoAutenticacao.MAXIMO_TENTATIVAS:
+            return ErroLogin(
+                'Você errou o código muitas vezes. Faça login de novo para receber um novo código.',
+                status=410,
+            )
+        return ErroLogin(self.MENSAGEM_CODIGO_INVALIDO, status=400)
+
 
 def verificar_token_google(valor):
-    """Verifica o ID token do Firebase e devolve o perfil Google: {'email', 'nome', 'sobrenome', 'foto'}.
-
-    O token é VERIFICADO com as chaves públicas do Google (assinatura,
-    validade e se foi emitido para o nosso projeto Firebase) — nunca
-    confiamos no e-mail que o front-end diz ter. Lança ErroLogin se não passar.
-    """
-    # Import local: google-auth só é necessário para os fluxos com Google.
     from google.auth import exceptions as google_exceptions
     from google.auth.transport import requests as google_requests
     from google.oauth2 import id_token
 
-    id_token_google = valor.strip() if isinstance(valor, str) else ''
+    id_token_google = _texto(valor)
     if not id_token_google:
         raise ErroLogin('Login com Google inválido. Tente de novo.', status=400)
 
@@ -412,15 +372,11 @@ def verificar_token_google(valor):
         logger.exception('Falha ao buscar as chaves públicas do Google')
         raise ErroLogin('Não conseguimos falar com o Google agora. Tente de novo em instantes.', status=503)
 
-    # Só aceita login feito pelo provedor Google e com e-mail confirmado
-    # pelo Google — e-mail não verificado poderia ser de outra pessoa.
     provedor = dados.get('firebase', {}).get('sign_in_provider')
     email = (dados.get('email') or '').strip().lower()
     if provedor != 'google.com' or not email or not dados.get('email_verified'):
         raise ErroLogin('Não foi possível confirmar seu e-mail com o Google.', status=401)
 
-    # O token do Firebase traz só o nome completo ('name'): a primeira palavra
-    # vira o nome e o resto o sobrenome — só sugestão, a pessoa pode corrigir.
     nome, _, sobrenome = (dados.get('name') or '').strip().partition(' ')
     return {
         'email': email, 'nome': nome, 'sobrenome': sobrenome.strip(),
@@ -429,28 +385,17 @@ def verificar_token_google(valor):
 
 
 class LoginGoogle:
-    """Botão "Continuar com Google" (Firebase Authentication): entra ou leva ao cadastro.
-
-    Com conta existente para o e-mail do Google: emite o Token e pronto.
-    Sem conta: devolve o perfil do Google para o front-end abrir a tela
-    "Complete seu cadastro" (ver CadastroUsuarioGoogle).
-    Não pede o código por e-mail (2FA): a conta Google já tem a própria
-    proteção, e o login por ela prova posse do e-mail.
-    """
-
     def __init__(self, dados, ip_origem=None):
         self.ip_origem = ip_origem
         self.id_token = dados.get('id_token')
 
     def executar(self):
-        """Devolve (usuario, token, None) se entrou, ou (None, None, perfil) se falta o cadastro."""
         perfil = verificar_token_google(self.id_token)
 
         usuario = Usuario.objects.filter(email=perfil['email']).first()
         if not usuario:
             return None, None, perfil
 
-        # Mantém a foto em dia (a pessoa pode ter trocado a foto no Google).
         if perfil['foto'] and usuario.foto_url != perfil['foto']:
             usuario.foto_url = perfil['foto']
             usuario.save(update_fields=['foto_url'])
@@ -460,14 +405,6 @@ class LoginGoogle:
 
 
 class CadastroUsuarioGoogle(CadastroUsuario):
-    """Cadastro pelo Google: mesmas regras do CadastroUsuario, menos a senha.
-
-    O e-mail vem do token verificado (não do que o front-end manda) e a conta
-    nasce sem senha. Continuam obrigatórios: nome, sobrenome, apelido, data
-    de nascimento (idade mínima) e aceite dos termos (LGPD) — o que o Google
-    não fornece e a tela "Complete seu cadastro" pede.
-    """
-
     VIA_GOOGLE = True
 
     def __init__(self, dados, ip_origem=None):
@@ -488,50 +425,50 @@ class CadastroUsuarioGoogle(CadastroUsuario):
         return usuario
 
     def _validar_senha(self):
-        pass  # conta sem senha — ver Usuario.definir_sem_senha
+        pass
 
     def _definir_senha(self, usuario):
         usuario.definir_sem_senha()
 
 
-class ErroRedefinicaoSenha(Exception):
-    def __init__(self, mensagem, status=400, espera_segundos=0):
-        super().__init__(mensagem)
-        self.mensagem = mensagem
-        self.status = status
-        self.espera_segundos = espera_segundos
-
-
 class SolicitarRedefinicaoSenha:
-    """Fluxo de "esqueci a senha": gera um token provisório e envia por e-mail.
-
-    Entre um pedido e outro para o mesmo e-mail a espera dobra: 2 min depois
-    do 1º, 4 depois do 2º, 8 depois do 3º... A contagem zera quando o e-mail
-    fica JANELA_CONTAGEM sem pedidos.
-    """
-
     ESPERA_BASE_MINUTOS = 2
     ESPERA_MAXIMA_MINUTOS = 24 * 60
     JANELA_CONTAGEM = timedelta(hours=24)
     VALIDADE_TOKEN = timedelta(minutes=30)
 
     def __init__(self, dados, ip_origem=None):
-        self._dados = dados
         self.ip_origem = ip_origem
-        valor = dados.get('email')
-        self.email = valor.strip().lower() if isinstance(valor, str) else ''
+        self.email = _texto(dados.get('email')).lower()
 
     @classmethod
     def espera_apos(cls, quantidade_pedidos):
-        """Espera exigida depois do N-ésimo pedido: 2, 4, 8, 16... minutos (com teto)."""
         minutos = cls.ESPERA_BASE_MINUTOS * 2 ** (quantidade_pedidos - 1)
         return timedelta(minutes=min(minutos, cls.ESPERA_MAXIMA_MINUTOS))
 
     def executar(self):
-        """Devolve quantos segundos faltam até o próximo pedido ser aceito."""
         self._validar_email()
         agora = timezone.now()
+        quantidade = self._exigir_intervalo(agora)
 
+        usuario = Usuario.objects.filter(email=self.email).first()
+        token = secrets.token_urlsafe(32) if usuario else None
+        self._registrar_pedido(usuario, token, agora)
+
+        if usuario:
+            self._enviar_link(usuario, token)
+
+        return int(self.espera_apos(quantidade + 1).total_seconds())
+
+    def _validar_email(self):
+        if len(self.email) > TAMANHO_MAXIMO_EMAIL:
+            raise ErroRedefinicaoSenha('Informe um e-mail válido.')
+        try:
+            validate_email(self.email)
+        except ValidationError:
+            raise ErroRedefinicaoSenha('Informe um e-mail válido.')
+
+    def _exigir_intervalo(self, agora):
         anteriores = SolicitacaoRedefinicaoSenha.objects.filter(
             email=self.email, criado_em__gte=agora - self.JANELA_CONTAGEM,
         )
@@ -545,10 +482,9 @@ class SolicitarRedefinicaoSenha:
                     'Aguarde um pouco antes de pedir um novo e-mail.',
                     status=429, espera_segundos=espera,
                 )
+        return quantidade
 
-        usuario = Usuario.objects.filter(email=self.email).first()
-        token = secrets.token_urlsafe(32) if usuario else None
-
+    def _registrar_pedido(self, usuario, token, agora):
         with transaction.atomic():
             SolicitacaoRedefinicaoSenha.objects.create(
                 email=self.email,
@@ -564,40 +500,23 @@ class SolicitarRedefinicaoSenha:
                     ip_origem=self.ip_origem,
                 )
 
-        if usuario:
-            link = f'{settings.FRONTEND_URL}/redefinir-senha.html?token={token}'
-            try:
-                NotificacaoService().enviar_recuperacao_senha(
-                    usuario, link, validade_minutos=int(self.VALIDADE_TOKEN.total_seconds() // 60),
-                )
-            except Exception:
-                logger.exception('Falha ao enviar e-mail de redefinição de senha')
-
-        return int(self.espera_apos(quantidade + 1).total_seconds())
-
-    def _validar_email(self):
+    def _enviar_link(self, usuario, token):
+        link = f'{settings.FRONTEND_URL}/redefinir-senha.html?token={token}'
         try:
-            validate_email(self.email)
-        except ValidationError:
-            raise ErroRedefinicaoSenha('Informe um e-mail válido.')
+            NotificacaoService().enviar_recuperacao_senha(
+                usuario, link, validade_minutos=int(self.VALIDADE_TOKEN.total_seconds() // 60),
+            )
+        except Exception:
+            logger.exception('Falha ao enviar e-mail de redefinição de senha')
 
 
 class ConfirmarRedefinicaoSenha:
-    """Troca a senha usando o token provisório recebido por e-mail.
-
-    O token vale uma vez só. Ao trocar a senha: invalida os outros links
-    pendentes da usuária e encerra as sessões abertas (apaga os Tokens de
-    login), para o caso de alguém ter entrado na conta com a senha antiga.
-    """
-
     MENSAGEM_LINK_INVALIDO = 'Este link é inválido ou expirou. Peça um novo em "Esqueci minha senha".'
 
     def __init__(self, dados, ip_origem=None):
-        self._dados = dados
         self.ip_origem = ip_origem
-        token = dados.get('token')
-        self.token = token.strip() if isinstance(token, str) else ''
-        self.senha = dados.get('senha') if isinstance(dados.get('senha'), str) else ''
+        self.token = _texto(dados.get('token'))
+        self.senha = _senha(dados.get('senha'))
 
     def executar(self):
         if not self.token:
@@ -627,7 +546,6 @@ class ConfirmarRedefinicaoSenha:
             usuario.definir_senha(self.senha)
             usuario.save(update_fields=['senha_hash'])
 
-            
             SolicitacaoRedefinicaoSenha.objects.filter(
                 usuario=usuario, usado_em__isnull=True,
             ).update(usado_em=agora)
@@ -639,3 +557,77 @@ class ConfirmarRedefinicaoSenha:
             )
 
         return usuario
+
+
+class ErroPerfil(Exception):
+    def __init__(self, mensagem, status=400):
+        super().__init__(mensagem)
+        self.mensagem = mensagem
+        self.status = status
+
+
+class AtualizarPerfil:
+    def __init__(self, usuario, dados):
+        self.usuario = usuario
+        self._dados = dados
+
+    def executar(self):
+        usuario = self.usuario
+        if 'nome' in self._dados:
+            usuario.nome = self._nome('nome', 'Nome', TAMANHO_MAXIMO_NOME)
+        if 'sobrenome' in self._dados:
+            usuario.sobrenome = self._nome('sobrenome', 'Sobrenome', TAMANHO_MAXIMO_SOBRENOME)
+        if 'apelido' in self._dados:
+            apelido = self._texto('apelido')
+            if len(apelido) > TAMANHO_MAXIMO_APELIDO:
+                raise ErroPerfil(f'Apelido muito longo (máximo {TAMANHO_MAXIMO_APELIDO} caracteres).')
+            usuario.apelido = apelido or usuario.nome
+        if 'celular' in self._dados:
+            usuario.celular = self._celular()
+
+        try:
+            usuario.save()
+        except IntegrityError:
+            raise ErroPerfil('Esse celular já está em uso.', status=409)
+        return usuario
+
+    def _texto(self, campo):
+        valor = self._dados.get(campo)
+        return valor.strip() if isinstance(valor, str) else ''
+
+    def _nome(self, campo, rotulo, maximo):
+        texto = ' '.join(p[:1].upper() + p[1:].lower() for p in self._texto(campo).split())
+        if not texto:
+            raise ErroPerfil(f'{rotulo} é obrigatório.')
+        if len(texto) > maximo:
+            raise ErroPerfil(f'{rotulo} muito longo (máximo {maximo} caracteres).')
+        return texto
+
+    def _celular(self):
+        celular = self._texto('celular')
+        if not celular:
+            return None
+        digitos = sum(c.isdigit() for c in celular)
+        if not 10 <= digitos <= 13:
+            raise ErroPerfil('Celular inválido. Informe o DDD e o número.')
+        return celular
+
+
+class AlterarConsentimento:
+    def __init__(self, usuario, dados, ip_origem=None):
+        self.usuario = usuario
+        self.tipo = dados.get('tipo')
+        self.aceito = dados.get('aceito')
+        self.ip_origem = ip_origem
+
+    def executar(self):
+        atuais = self.usuario.consentimentos_atuais()
+        if self.tipo not in atuais or not isinstance(self.aceito, bool):
+            raise ErroPerfil('Consentimento inválido.')
+        atual = atuais[self.tipo]
+        if atual.aceito == self.aceito:
+            return atual
+        return Consentimento.objects.create(
+            usuario=self.usuario, tipo=self.tipo, versao_documento=atual.versao_documento,
+            aceito=self.aceito, ip_origem=self.ip_origem,
+        )
