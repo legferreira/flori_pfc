@@ -24,3 +24,6 @@ desktop.ini
 .DS_Store
 
 *.bak
+# Cobertura de testes
+coverage_html/
+.coverage

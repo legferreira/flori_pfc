@@ -3,7 +3,7 @@ const API_SESSAO = 'http://127.0.0.1:8000/api';
 function concluirLogin(resultado) {
   localStorage.setItem('flori_token', resultado.token);
   localStorage.setItem('flori_apelido', resultado.apelido);
-  window.location.href = 'home.html';
+  window.location.href = resultado.perfil === 'admin' ? 'admin.html' : 'home.html';
 }
 
 function tokenDaSessao() {

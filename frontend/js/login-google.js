@@ -16,6 +16,15 @@ botaoGoogle.addEventListener('click', async () => {
         window.location.href = 'cadastro.html';
         return;
       }
+      if (status === 200 && resultado.requer_codigo) {
+        sessionStorage.setItem('flori_2fa', JSON.stringify({
+          desafio: resultado.desafio,
+          email: resultado.email_mascarado,
+          expiraEm: Date.now() + resultado.validade_minutos * 60 * 1000,
+        }));
+        window.location.href = 'verificar-codigo.html';
+        return;
+      }
       if (status === 200) {
         concluirLogin(resultado);
         return;

@@ -1,0 +1,12 @@
+{% autoescape off %}Oi, {{ apelido }}!
+
+Recebemos um pedido para excluir a sua conta no Flori. Para confirmar, use este código:
+
+    {{ codigo }}
+
+O código vale por {{ validade_minutos }} minutos e só pode ser usado uma vez.
+
+Não foi você? Ignore este email, sua conta continua ativa.
+
+Flori
+{% endautoescape %}

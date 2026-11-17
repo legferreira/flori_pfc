@@ -650,3 +650,60 @@
   font-weight: 600;
   color: #b3261e;
 }
+
+.flori-faixa-visualizacao {
+  margin: 0 0 1rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 12px;
+  background-color: #f6f2f9;
+  color: #6b5f7a;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.flori-opcao:has(input:disabled) { cursor: default; }
+
+.flori-opcao:has(input:disabled):hover { border-color: #e5dfeb; }
+
+.flori-extras { margin-top: 2rem; }
+
+.flori-extras-titulo { font-size: 1.4rem; margin-bottom: 0.1rem; }
+
+.flori-extra {
+  margin-top: 0.9rem;
+  border: 1px solid #e7e1ec;
+  border-radius: 18px;
+  background-color: #ffffff;
+}
+
+.flori-extra-topo {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: none;
+  border-radius: 18px;
+  background: none;
+  color: var(--flori-title);
+  text-align: left;
+}
+
+.flori-extra-texto { display: flex; flex: 1 1 auto; flex-direction: column; min-width: 0; }
+
+.flori-extra-titulo { font-size: 1.1rem; font-weight: 700; }
+
+.flori-extra-sub,
+.flori-extra-meta { color: #6b6478; font-size: 0.85rem; }
+
+.flori-extra-cards { padding: 0 1rem 1rem; }
+
+.flori-aviso-extra {
+  margin: 1rem 0;
+  padding: 0.75rem 0.9rem;
+  border-left: 4px solid #e0a13f;
+  border-radius: 10px;
+  background-color: #fdf0cf;
+  color: #5c3f00;
+  font-size: 0.88rem;
+}

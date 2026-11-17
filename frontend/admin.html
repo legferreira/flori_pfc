@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Flori | Dashboard administrativo</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link href="css/base.css?v=11" rel="stylesheet">
+<link href="css/botoes.css?v=10" rel="stylesheet">
+<link href="css/formularios.css?v=10" rel="stylesheet">
+<link href="css/home.css?v=14" rel="stylesheet">
+<link href="css/dashboard.css?v=10" rel="stylesheet">
+<link href="css/modal.css?v=10" rel="stylesheet">
+<link href="css/perfil.css?v=15" rel="stylesheet">
+<link href="css/trilha.css?v=12" rel="stylesheet">
+<link href="css/admin.css?v=7" rel="stylesheet">
+</head>
+<body>
+
+<header class="flori-topbar" id="topo" hidden></header>
+
+<main class="container flori-main" id="conteudo" hidden>
+  <h1 class="flori-heading flori-titulo">Dashboard administrativo</h1>
+  <p class="flori-hint">Dados agregados, users e gestão de conteúdo. Toda ação aqui fica registrada.</p>
+
+  <nav class="flori-abas mt-3" role="tablist" aria-label="Seções do dashboard administrativo">
+    <button type="button" role="tab" class="flori-aba" data-aba="visao-geral" aria-selected="true">Visão geral</button>
+    <button type="button" role="tab" class="flori-aba" data-aba="usuarios" aria-selected="false">Users</button>
+    <button type="button" role="tab" class="flori-aba" data-aba="conteudo" aria-selected="false">Conteúdo</button>
+  </nav>
+
+  <div id="painel" class="mt-3" role="tabpanel" aria-live="polite"></div>
+</main>
+
+<dialog id="modalExcluirUser" class="flori-modal flori-ct-modal" role="dialog" aria-modal="true" aria-labelledby="tituloExcluirUser" aria-describedby="textoExcluirUser">
+  <form id="formExcluirUser" novalidate>
+    <h2 class="flori-heading h4" id="tituloExcluirUser">Excluir conta?</h2>
+    <p id="textoExcluirUser">A conta será anonimizada, o progresso e as tentativas serão apagados e a pessoa será avisada por e-mail. Esta ação não pode ser desfeita.</p>
+    <p class="flori-hint" id="descricaoExcluirUser"></p>
+    <div class="flori-ct-campo mb-2">
+      <label class="form-label" for="motivoExcluir">Motivo</label>
+      <select class="form-select" id="motivoExcluir" required aria-describedby="motivoExcluir_erro">
+        <option value="">Selecione</option>
+        <option value="pedido_titular">Pedido do titular</option>
+        <option value="violacao_termos">Violação dos termos</option>
+        <option value="conta_duplicada">Conta duplicada</option>
+        <option value="conta_teste">Conta de teste</option>
+        <option value="outro">Outro</option>
+      </select>
+      <small class="flori-ct-erro-campo" id="motivoExcluir_erro" hidden></small>
+    </div>
+    <div class="flori-ct-campo mb-3">
+      <label class="form-label" for="observacaoExcluir">Observação (opcional)</label>
+      <input type="text" class="form-control" id="observacaoExcluir" maxlength="140" aria-describedby="observacaoExcluir_erro observacaoExcluir_contador">
+      <div class="flori-ct-campo-pe">
+        <small class="flori-ct-erro-campo" id="observacaoExcluir_erro" hidden></small>
+        <small class="flori-ct-contador" id="observacaoExcluir_contador">0 de 140</small>
+      </div>
+    </div>
+    <div class="flori-ct-resumo-erro mb-3" id="erroExcluirUser" role="alert" hidden></div>
+    <div class="flori-ct-modal-acoes">
+      <button type="button" class="btn btn-flori-outline" data-fechar>Cancelar</button>
+      <button type="submit" class="btn btn-perigo" id="botaoExcluirUser">Excluir conta</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="modalConfirmar" class="flori-modal flori-ct-modal" role="dialog" aria-modal="true" aria-labelledby="tituloConfirmar" aria-describedby="textoConfirmar">
+  <h2 class="flori-heading h4" id="tituloConfirmar"></h2>
+  <p id="textoConfirmar"></p>
+  <ul class="flori-ct-modal-itens" id="itensConfirmar"></ul>
+  <div class="flori-ct-modal-acoes">
+    <button type="button" class="btn btn-flori-outline" id="botaoCancelarConfirmar">Cancelar</button>
+    <button type="button" class="btn btn-perigo" id="botaoConfirmar">Excluir</button>
+  </div>
+</dialog>
+
+<dialog class="flori-dialog" id="dialogPrevia" role="dialog" aria-modal="true" aria-labelledby="dlgTema">
+  <div id="previaConteudo"></div>
+</dialog>
+
+<div class="flori-ct-toast" id="toastAdmin" role="status" aria-live="polite" hidden></div>
+
+<script src="js/compartilhado/sessao.js?v=4"></script>
+<script type="module" src="js/admin/admin.js?v=9"></script>
+
+</body>
+</html>

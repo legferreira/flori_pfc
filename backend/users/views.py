@@ -1,16 +1,29 @@
+import json
+
 from django.http import HttpResponse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
-from flori_backend.api import ViewAutenticada, erro, ip_do_cliente, ler_json, resposta_json
+from flori_backend.api import ViewAutenticada, erro, ip_do_cliente, ler_json, momento_iso, resposta_json
 
-from .models import CodigoAutenticacao, LogAtividade, Token
+from .models import CodigoAutenticacao, Consentimento, LogAtividade, Token
 from .services import (
-    AlterarConsentimento, AtualizarPerfil, CadastroUsuario, CadastroUsuarioGoogle, ConfirmarRedefinicaoSenha,
-    ErroCadastro, ErroLogin, ErroPerfil, ErroRedefinicaoSenha, LoginGoogle, LoginUsuario,
-    SolicitarRedefinicaoSenha, VerificarCodigoAutenticacao, iniciar_sessao, mascarar_email,
+    AceitarDocumentosAtualizados, AlterarConsentimento, AtualizarPerfil, CadastroUsuario, CadastroUsuarioGoogle, ConfirmarRedefinicaoSenha,
+    ConfirmarTrocaEmail, EnviarCodigoExclusao, ErroCadastro, ErroLogin, ErroPerfil, ErroRedefinicaoSenha, ErroServico,
+    ExcluirContaPropria, ExportarDados, documentos_desatualizados, LoginGoogle, LoginUsuario, SolicitarRedefinicaoSenha, SolicitarTrocaEmail,
+    VerificarCodigoAutenticacao, iniciar_sessao, mascarar_email,
 )
+
+
+def resposta_desafio(resultado):
+    return resposta_json({
+        'requer_codigo': True,
+        'desafio': resultado.desafio,
+        'email_mascarado': mascarar_email(resultado.usuario.email),
+        'validade_minutos': CodigoAutenticacao.VALIDADE_MINUTOS,
+    }, status=200)
 
 
 def resposta_sessao(usuario, token, status=200):
@@ -19,6 +32,7 @@ def resposta_sessao(usuario, token, status=200):
         'token': token.chave,
         'id': usuario.id,
         'apelido': usuario.apelido,
+        'perfil': usuario.perfil,
     }, status=status)
 
 
@@ -67,12 +81,7 @@ class LoginUsuarioView(View):
             return erro(e.mensagem, status=e.status)
 
         if resultado.requer_codigo:
-            return resposta_json({
-                'requer_codigo': True,
-                'desafio': resultado.desafio,
-                'email_mascarado': mascarar_email(resultado.usuario.email),
-                'validade_minutos': CodigoAutenticacao.VALIDADE_MINUTOS,
-            }, status=200)
+            return resposta_desafio(resultado)
 
         return resposta_sessao(resultado.usuario, resultado.token)
 
@@ -100,13 +109,15 @@ class LoginGoogleView(View):
             return erro('JSON inválido.')
 
         try:
-            usuario, token, perfil = LoginGoogle(dados, ip_origem=ip_do_cliente(request)).executar()
+            resultado, perfil = LoginGoogle(dados, ip_origem=ip_do_cliente(request)).executar()
         except ErroLogin as e:
             return erro(e.mensagem, status=e.status)
 
         if perfil:
             return resposta_json({'cadastro_necessario': True, **perfil}, status=200)
-        return resposta_sessao(usuario, token)
+        if resultado.requer_codigo:
+            return resposta_desafio(resultado)
+        return resposta_sessao(resultado.usuario, resultado.token)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -149,10 +160,11 @@ def dados_do_perfil(usuario):
     consentimentos = [
         {
             'tipo': c.tipo, 'rotulo': c.get_tipo_display(), 'aceito': c.aceito,
-            'versao_documento': c.versao_documento, 'data': c.data_consentimento.isoformat(),
+            'versao_documento': c.versao_documento, 'data': momento_iso(c.data_consentimento),
         }
-        for c in usuario.consentimentos_atuais().values()
+        for c in usuario.consentimentos_atuais().values() if c.tipo in Consentimento.DOCUMENTOS
     ]
+    saude = usuario.consentimentos_atuais().get(Consentimento.Tipo.SAUDE)
     return {
         'id': usuario.id,
         'apelido': usuario.apelido,
@@ -162,7 +174,16 @@ def dados_do_perfil(usuario):
         'celular': usuario.celular,
         'data_nascimento': usuario.data_nascimento,
         'foto_url': usuario.foto_url,
+        'perfil': usuario.perfil,
+        'tem_senha': usuario.tem_senha(),
         'consentimentos': consentimentos,
+        'documentos_desatualizados': documentos_desatualizados(usuario),
+        'situacao_menstrual': usuario.situacao_menstrual,
+        'diario_disponivel': usuario.diario_disponivel,
+        'consentimento_saude': {
+            'aceito': saude.aceito, 'versao_documento': saude.versao_documento,
+            'data': momento_iso(saude.data_consentimento),
+        } if saude else None,
     }
 
 
@@ -176,11 +197,91 @@ class PerfilView(ViewAutenticada):
             return erro('JSON inválido.')
 
         try:
-            usuario = AtualizarPerfil(request.usuario, dados).executar()
+            usuario = AtualizarPerfil(request.usuario, dados, ip_origem=ip_do_cliente(request)).executar()
         except ErroPerfil as e:
             return erro(e.mensagem, status=e.status)
 
         return resposta_json(dados_do_perfil(usuario))
+
+
+class TrocaEmailView(ViewAutenticada):
+    def post(self, request):
+        dados = ler_json(request)
+        if dados is None:
+            return erro('JSON inválido.')
+
+        try:
+            resposta = SolicitarTrocaEmail(request.usuario, dados, ip_origem=ip_do_cliente(request)).executar()
+        except ErroServico as e:
+            return erro(e.mensagem, status=e.status)
+
+        return resposta_json(resposta)
+
+
+class ConfirmarTrocaEmailView(ViewAutenticada):
+    def post(self, request):
+        dados = ler_json(request)
+        if dados is None:
+            return erro('JSON inválido.')
+
+        try:
+            usuario = ConfirmarTrocaEmail(
+                request.usuario, request.token, dados, ip_origem=ip_do_cliente(request),
+            ).executar()
+        except ErroServico as e:
+            return erro(e.mensagem, status=e.status)
+
+        return resposta_json(dados_do_perfil(usuario))
+
+
+class ContaView(ViewAutenticada):
+    def delete(self, request):
+        dados = ler_json(request)
+        if dados is None:
+            return erro('JSON inválido.')
+
+        try:
+            ExcluirContaPropria(request.usuario, dados, ip_origem=ip_do_cliente(request)).executar()
+        except ErroServico as e:
+            return erro(e.mensagem, status=e.status)
+
+        return HttpResponse(status=204)
+
+
+class CodigoExclusaoView(ViewAutenticada):
+    def post(self, request):
+        try:
+            desafio = EnviarCodigoExclusao(request.usuario, ip_origem=ip_do_cliente(request)).executar()
+        except ErroServico as e:
+            return erro(e.mensagem, status=e.status)
+
+        return resposta_json({
+            'desafio': desafio,
+            'email_mascarado': mascarar_email(request.usuario.email),
+            'validade_minutos': CodigoAutenticacao.VALIDADE_MINUTOS,
+        })
+
+
+class ExportacaoView(ViewAutenticada):
+    def get(self, request):
+        try:
+            dados = ExportarDados(request.usuario, ip_origem=ip_do_cliente(request)).executar()
+        except ErroServico as e:
+            return erro(e.mensagem, status=e.status)
+
+        nome = f'flori-meus-dados-{timezone.localdate().isoformat()}.json'
+        resposta = HttpResponse(
+            json.dumps(dados, ensure_ascii=False, indent=2), content_type='application/json; charset=utf-8',
+        )
+        resposta['Content-Disposition'] = f'attachment; filename="{nome}"'
+        resposta['Cache-Control'] = 'no-store'
+        return resposta
+
+
+class AceitarDocumentosView(ViewAutenticada):
+    def post(self, request):
+        AceitarDocumentosAtualizados(request.usuario, ip_origem=ip_do_cliente(request)).executar()
+        return resposta_json(dados_do_perfil(request.usuario))
 
 
 class ConsentimentoView(ViewAutenticada):

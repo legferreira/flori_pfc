@@ -7,24 +7,88 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
-<link href="css/base.css?v=10" rel="stylesheet">
+<link href="css/base.css?v=11" rel="stylesheet">
 <link href="css/botoes.css?v=10" rel="stylesheet">
 <link href="css/formularios.css?v=10" rel="stylesheet">
-<link href="css/home.css?v=10" rel="stylesheet">
-<link href="css/perfil.css?v=10" rel="stylesheet">
+<link href="css/home.css?v=14" rel="stylesheet">
+<link href="css/modal.css?v=10" rel="stylesheet">
+<link href="css/perfil.css?v=15" rel="stylesheet">
 </head>
 <body>
 
 <header class="flori-topbar" id="topo" hidden></header>
 
-<main class="container flori-main" id="conteudo" hidden>
+<main class="container flori-main flori-perfil-pagina" id="conteudo" hidden>
   <h1 class="flori-heading flori-titulo">Meu perfil</h1>
   <p class="flori-hint">Confira e corrija seus dados. Só você vê estas informações.</p>
   <div id="painel" class="mt-3" aria-live="polite"></div>
 </main>
 
-<script src="js/compartilhado/sessao.js?v=3"></script>
-<script type="module" src="js/perfil.js?v=1"></script>
+<dialog id="modalTrocarEmail" class="flori-modal" aria-labelledby="tituloTrocarEmail">
+  <button type="button" class="flori-modal-fechar" data-fechar aria-label="Fechar">&times;</button>
+  <h2 class="flori-heading h4" id="tituloTrocarEmail">Trocar email</h2>
+  <form id="formTrocarEmail" novalidate>
+    <p class="flori-hint mb-3">Vamos enviar um código para o email novo. Até você confirmar, o email atual continua valendo para entrar.</p>
+    <div class="mb-3">
+      <label class="form-label" for="emailNovo">Email novo</label>
+      <input type="email" class="form-control" id="emailNovo" maxlength="150" autocomplete="email">
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="senhaTrocaEmail">Senha atual</label>
+      <input type="password" class="form-control" id="senhaTrocaEmail" autocomplete="current-password">
+    </div>
+    <div class="flori-error mb-2" id="erroTrocaEmail" role="alert"></div>
+    <div class="flori-perigo-acoes">
+      <button type="submit" class="btn btn-flori" id="botaoPedirCodigoEmail">Enviar código</button>
+      <button type="button" class="btn btn-flori-outline" data-fechar>Cancelar</button>
+    </div>
+  </form>
+  <form id="formCodigoEmail" novalidate hidden>
+    <div class="flori-success mb-3" id="avisoTrocaEmail" role="status"></div>
+    <div class="mb-3">
+      <label class="form-label" for="codigoEmail">Código recebido no email novo</label>
+      <input type="text" class="form-control flori-code-input" id="codigoEmail" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000">
+    </div>
+    <div class="flori-error mb-2" id="erroCodigoEmail" role="alert"></div>
+    <div class="flori-perigo-acoes">
+      <button type="submit" class="btn btn-flori" id="botaoConfirmarEmail">Confirmar troca</button>
+      <button type="button" class="btn btn-flori-outline" data-fechar>Cancelar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="modalExcluirConta" class="flori-modal" aria-labelledby="tituloExcluirConta">
+  <form id="formExcluirConta" novalidate>
+    <button type="button" class="flori-modal-fechar" id="fecharExclusao" aria-label="Fechar">&times;</button>
+    <h2 class="flori-heading h4" id="tituloExcluirConta">Excluir minha conta</h2>
+    <p class="flori-hint mb-3">Depois de confirmar, sua conta é apagada na hora e você sai do Flori.</p>
+    <div class="mb-3" id="blocoSenha">
+      <label class="form-label" for="senhaExcluir">Senha atual</label>
+      <input type="password" class="form-control" id="senhaExcluir" autocomplete="current-password">
+    </div>
+    <div class="mb-3" id="blocoCodigo" hidden>
+      <p class="flori-hint">Sua conta entra com o Google, então confirmamos por um código enviado para o seu email.</p>
+      <button type="button" class="btn btn-flori-outline btn-flori-sm mb-2" id="botaoEnviarCodigo">Enviar código para o meu email</button>
+      <div class="flori-success" id="avisoCodigo" role="status"></div>
+      <div id="campoCodigo" hidden>
+        <label class="form-label mt-2" for="codigoExcluir">Código recebido</label>
+        <input type="text" class="form-control" id="codigoExcluir" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
+      </div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="confirmacaoExcluir">Digite <strong>EXCLUIR</strong> para confirmar</label>
+      <input type="text" class="form-control" id="confirmacaoExcluir" autocomplete="off">
+    </div>
+    <div class="flori-error mb-2" id="erroExcluir" role="alert"></div>
+    <div class="flori-perigo-acoes">
+      <button type="submit" class="btn btn-perigo" id="botaoConfirmarExclusao">Excluir definitivamente</button>
+      <button type="button" class="btn btn-flori-outline" id="cancelarExclusao">Cancelar</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="js/compartilhado/sessao.js?v=4"></script>
+<script type="module" src="js/perfil.js?v=9"></script>
 
 </body>
 </html>

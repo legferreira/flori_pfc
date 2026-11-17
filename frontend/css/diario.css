@@ -1,0 +1,147 @@
+.flori-diario { display: flex; flex-direction: column; gap: 1rem; }
+
+.flori-diario .flori-card { max-width: none; margin: 0; padding: 1.25rem 1.4rem; }
+
+.flori-diario-resumo h2 { font-size: 1.15rem; margin-bottom: 0.5rem; }
+
+.flori-diario-frases { margin: 0 0 0.6rem; padding-left: 1.1rem; }
+
+.flori-diario-frases li + li { margin-top: 0.2rem; }
+
+.flori-diario-orientacao {
+  margin: 0 0 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  background-color: #fdf0cf;
+  color: #5c3f00;
+  font-size: 0.88rem;
+}
+
+.flori-diario-aviso { margin: 0; color: #6b6478; font-size: 0.8rem; }
+
+.flori-diario-filtro { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+
+.flori-diario-filtro .form-select { width: auto; min-height: 40px; }
+
+.flori-diario-filtro .btn { width: auto; min-width: 40px; }
+
+.flori-calendario {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+
+.flori-dia-semana { padding-bottom: 0.2rem; color: #6b6478; font-size: 0.75rem; font-weight: 600; text-align: center; }
+
+.flori-dia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.15rem;
+  min-height: 64px;
+  padding: 0.35rem 0.2rem;
+  border: 1px solid #efeaf4;
+  border-radius: 12px;
+  background-color: #ffffff;
+  color: var(--flori-title);
+}
+
+.flori-dia.is-vazio { border: none; background: none; }
+
+.flori-dia:not(:disabled):hover { border-color: var(--flori-title); }
+
+.flori-dia:disabled { background-color: #f7f5f9; color: #a29ab0; cursor: default; }
+
+.flori-dia.is-hoje { border: 2px solid var(--flori-title); background-color: #fdf1f7; }
+
+.flori-dia-numero { font-weight: 600; font-size: 0.9rem; }
+
+.flori-dia-marcas { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.15rem; }
+
+.flori-gota path { fill: #d77fb0; }
+
+.flori-gota.is-leve path { fill: #f0c7dc; }
+
+.flori-gota.is-medio path { fill: #d77fb0; }
+
+.flori-gota.is-intenso path { fill: #a8326e; }
+
+.flori-gota.is-prevista path { fill: none; stroke: #a8326e; stroke-width: 1.4; stroke-dasharray: 2 1.6; }
+
+.flori-prevista { display: inline-flex; align-items: center; gap: 0.1rem; color: #a8326e; font-size: 0.62rem; font-weight: 600; }
+
+.flori-rosto circle:first-child { fill: #fbe4ef; stroke: var(--flori-title); stroke-width: 1.4; }
+
+.flori-rosto path { fill: none; stroke: var(--flori-title); stroke-width: 1.6; }
+
+.flori-rosto .flori-rosto-sorriso { fill: var(--flori-title); }
+
+.flori-rosto .flori-rosto-olho { fill: var(--flori-title); stroke: none; }
+
+.flori-ponto { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+
+.flori-ponto.is-leve { background-color: #c7b8e6; }
+
+.flori-ponto.is-medio { background-color: #8c73c9; }
+
+.flori-ponto.is-intenso { background-color: #4f3a8a; }
+
+.flori-diario-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  margin: 0.8rem 0 0;
+  padding: 0;
+  list-style: none;
+  color: #6b6478;
+  font-size: 0.8rem;
+}
+
+.flori-diario-legenda li { display: inline-flex; align-items: center; gap: 0.3rem; }
+
+.flori-diario-apagar { align-self: flex-start; width: auto; }
+
+.flori-diario-aviso-card p { margin-bottom: 0.8rem; }
+
+.flori-dia-modal { max-width: 520px; max-height: calc(100vh - 2rem); overflow-y: auto; }
+
+.flori-dia-grupo { margin: 0 0 0.9rem; padding: 0; border: none; }
+
+.flori-dia-grupo legend { margin-bottom: 0.4rem; font-size: 0.95rem; font-weight: 700; }
+
+.flori-escolhas { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+.flori-escolha {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  min-width: 64px;
+  padding: 0.4rem 0.6rem;
+  border: 1.5px solid #e5dfeb;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.flori-escolha:has(input:checked) { border-color: var(--flori-title); background-color: #fdf1f7; font-weight: 600; }
+
+.flori-escolha:has(input:focus-visible) { outline: 3px solid var(--flori-title); outline-offset: 2px; }
+
+.flori-escolha-compacta { min-width: 0; padding: 0.2rem 0.45rem; border-radius: 999px; font-size: 0.75rem; }
+
+.flori-sintomas { display: flex; flex-direction: column; gap: 0.35rem; max-height: 280px; overflow-y: auto; }
+
+.flori-sintoma { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.3rem; }
+
+.flori-sintoma-nome { font-size: 0.88rem; }
+
+.flori-sintoma-opcoes { display: inline-flex; flex-wrap: wrap; gap: 0.25rem; }
+
+.flori-dia-excluir { margin-right: auto; }
+
+@media (max-width: 575px) {
+  .flori-dia { min-height: 54px; }
+  .flori-sintomas { max-height: 220px; }
+}

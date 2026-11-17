@@ -40,11 +40,13 @@ function mostrarErro(mensagem) {
 async function carregar() {
   try {
     const { ok, dados } = await chamarApi('/dashboard');
-    if (!ok) throw new Error(dados.mensagem || 'Não foi possível carregar o dashboard.');
+    if (!ok) throw new Error(dados.mensagem || 'Não foi possível carregar a sua evolução.');
     desenhar(dados);
   } catch (erro) {
     mostrarErro(erro.message || 'Sem conexão com o servidor.');
   }
 }
 
-if (await iniciarAreaLogada('dashboard')) carregar();
+const perfil = await iniciarAreaLogada('dashboard');
+if (perfil?.perfil === 'admin') window.location.replace('admin.html');
+else if (perfil) carregar();

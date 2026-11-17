@@ -7,7 +7,7 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
-<link href="css/base.css?v=8" rel="stylesheet">
+<link href="css/base.css?v=11" rel="stylesheet">
 <link href="css/formularios.css?v=8" rel="stylesheet">
 <link href="css/botoes.css?v=8" rel="stylesheet">
 <link href="css/cadastro.css?v=8" rel="stylesheet">
@@ -53,7 +53,7 @@
           <input type="date" class="form-control" id="dataNascimento" autocomplete="bday" required>
           <div class="flori-error" id="erroIdade"></div>
           <div class="flori-age-block" id="blocoIdade">
-            Ainda não é a sua vez de usar o Flori sozinha, volte em breve!
+            Ainda não é a sua vez de usar o Flori por conta própria, volte em breve!
           </div>
         </div>
       </div>
@@ -134,9 +134,10 @@
   </div>
 </div>
 
-<script src="js/compartilhado/sessao.js?v=2"></script>
+<script src="js/compartilhado/sessao.js?v=4"></script>
 <script src="js/cadastro.js?v=3"></script>
 <script type="module" src="js/cadastro-google.js?v=1"></script>
 
+<script type="module">import { desenharRodape } from './js/compartilhado/rodape.js'; desenharRodape();</script>
 </body>
 </html>

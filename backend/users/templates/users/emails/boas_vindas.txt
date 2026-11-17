@@ -9,5 +9,5 @@ Se quiser entrar também com e-mail e senha, crie uma senha em "Esqueci minha se
 
 Não foi você que criou esta conta? Pode ignorar este e-mail.
 
-— Flori
+Um abraço, Flori
 {% endautoescape %}

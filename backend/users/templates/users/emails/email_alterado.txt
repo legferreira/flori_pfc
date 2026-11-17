@@ -1,0 +1,9 @@
+{% autoescape off %}Oi, {{ apelido }}!
+
+O email da sua conta no Flori foi alterado para {{ email_novo_mascarado }}.
+A partir de agora, este endereço não recebe mais os emails da conta e não serve mais para entrar.
+
+Não foi você? Escreva para o canal de privacidade indicado na Política de Privacidade do Flori o quanto antes.
+
+Flori
+{% endautoescape %}

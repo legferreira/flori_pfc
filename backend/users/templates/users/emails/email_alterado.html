@@ -1,0 +1,19 @@
+{% extends 'users/emails/base.html' %}
+
+{% block titulo_pagina %}O email da sua conta no Flori foi alterado{% endblock %}
+
+{% block preheader %}O email da sua conta no Flori foi alterado.{% endblock %}
+
+{% block titulo %}Oi, {{ apelido }}! O email da sua conta mudou{% endblock %}
+
+{% block conteudo %}
+O email da sua conta no Flori foi alterado para <strong style="color:#3E2F59;">{{ email_novo_mascarado }}</strong>. A partir de agora, este endereço não recebe mais os emails da conta e não serve mais para entrar.
+{% endblock %}
+
+{% block botao %}{% endblock %}
+
+{% block nota_final %}
+<strong style="color:#3E2F59;">Não foi você?</strong> Escreva para o canal de privacidade indicado na Política de Privacidade do Flori o quanto antes.
+{% endblock %}
+
+{% block rodape %}Você recebeu este email porque era o endereço cadastrado na sua conta do Flori.{% endblock %}

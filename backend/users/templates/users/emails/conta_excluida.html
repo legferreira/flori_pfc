@@ -1,0 +1,19 @@
+{% extends 'users/emails/base.html' %}
+
+{% block titulo_pagina %}Sua conta no Flori foi excluída{% endblock %}
+
+{% block preheader %}Confirmamos a exclusão da sua conta no Flori.{% endblock %}
+
+{% block titulo %}Oi, {{ apelido }}! Sua conta foi excluída{% endblock %}
+
+{% block conteudo %}
+{% if pelo_admin %}Sua conta no Flori foi excluída pela administração. Seus dados de cadastro, progresso, quiz e certificado foram apagados.{% else %}Confirmamos que a sua conta no Flori foi excluída, a seu pedido.{% endif %}
+{% endblock %}
+
+{% block botao %}{% endblock %}
+
+{% block nota_final %}
+<strong style="color:#3E2F59;">Não foi você?</strong> Responda pelo canal de privacidade indicado na Política de Privacidade do Flori.
+{% endblock %}
+
+{% block rodape %}Você recebeu este email porque a sua conta do Flori foi excluída.{% endblock %}
