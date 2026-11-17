@@ -1,7 +1,7 @@
 import { chamarApi, iniciarAreaLogada } from './compartilhado/area-logada.js';
 import { popupCard, popupGuia } from './trilha/popup.js';
 import {
-  telaAssunto, telaCertificado, telaQuiz, telaResultado, telaTrilha,
+  secaoExtras, telaAssunto, telaCertificado, telaQuiz, telaResultado, telaTrilha,
 } from './trilha/telas.js';
 
 const conteudo = document.getElementById('conteudo');
@@ -13,13 +13,31 @@ let destino = 'trilha';
 let quiz = null;
 let quizEstado = null;
 let cardAberto = null;
+let extras = null;
+const extrasAbertos = new Set();
+const LEITURA_EXTRA = { modo_visualizacao: true, concluidos: 0, total_cards: 0 };
 
 const assuntoPorId = (id) => dados.assuntos.find((a) => a.id === id);
+const extraPorId = (id) => extras?.assuntos.find((a) => a.id === id);
+const FAIXA_VISUALIZACAO = '<p class="flori-faixa-visualizacao" role="note">Modo visualização: nada é registrado</p>';
+
+function desenhar(html) {
+  conteudo.innerHTML = (dados?.modo_visualizacao ? FAIXA_VISUALIZACAO : '') + html;
+}
 
 async function carregarTrilha() {
   const { ok, dados: corpo } = await chamarApi('/trilha');
   if (!ok) throw new Error(corpo.mensagem || 'Não foi possível carregar a trilha.');
   dados = corpo;
+}
+
+async function carregarExtras() {
+  try {
+    const { ok, dados: corpo } = await chamarApi('/trilha/extras');
+    extras = ok ? corpo : null;
+  } catch {
+    extras = null;
+  }
 }
 
 function mostrarErro(mensagem) {
@@ -46,10 +64,10 @@ async function mostrarTela() {
     else quizEstado = null;
     if (vista === 'certificado' && !dados.certificado) destino = 'trilha';
 
-    if (vista === 'quiz' && quizEstado) conteudo.innerHTML = quizEstado.resultado ? telaResultado(quizEstado.resultado) : telaQuiz(quiz, quizEstado);
-    else if (vista === 'certificado' && dados.certificado) conteudo.innerHTML = telaCertificado(dados.certificado);
-    else if (vista === 'trilha' && id) conteudo.innerHTML = telaAssunto(dados, id);
-    else conteudo.innerHTML = telaTrilha(dados);
+    if (vista === 'quiz' && quizEstado) desenhar(quizEstado.resultado ? telaResultado(quizEstado.resultado) : telaQuiz(quiz, quizEstado));
+    else if (vista === 'certificado' && dados.certificado) desenhar(telaCertificado(dados.certificado));
+    else if (vista === 'trilha' && id) desenhar(telaAssunto(dados, id));
+    else desenhar(telaTrilha(dados) + secaoExtras(extras, extrasAbertos));
   } catch (erro) {
     mostrarErro(erro.message);
     return;
@@ -60,21 +78,25 @@ async function mostrarTela() {
 
 async function prepararQuiz() {
   if (quizEstado) return;
-  const { ok, status, dados: corpo } = await chamarApi('/trilha/quiz');
+  const pedido = dados.modo_visualizacao ? chamarApi('/trilha/quiz') : chamarApi('/trilha/quiz/tentativas', { metodo: 'POST' });
+  const { ok, status, dados: corpo } = await pedido;
   if (!ok) {
     if (status === 403) { destino = 'trilha'; quizEstado = null; return; }
     throw new Error(corpo.mensagem || 'Não foi possível carregar o quiz.');
   }
   quiz = corpo;
-  quizEstado = { indice: 0, respostas: {}, resultado: null, enviando: false, erro: '' };
+  quizEstado = { indice: 0, respostas: {}, resultado: null, enviando: false, erro: '', leitura: dados.modo_visualizacao };
 }
 
 async function enviarQuiz() {
+  if (quizEstado.leitura) return;
   quizEstado.enviando = true;
   quizEstado.erro = '';
-  conteudo.innerHTML = telaQuiz(quiz, quizEstado);
+  desenhar(telaQuiz(quiz, quizEstado));
   try {
-    const { ok, dados: corpo } = await chamarApi('/trilha/quiz', { metodo: 'POST', corpo: { respostas: quizEstado.respostas } });
+    const { ok, dados: corpo } = await chamarApi('/trilha/quiz', {
+      metodo: 'POST', corpo: { tentativa_id: quiz.tentativa_id, respostas: quizEstado.respostas },
+    });
     if (!ok) throw new Error(corpo.mensagem || 'Não foi possível enviar o quiz.');
     quizEstado.resultado = corpo;
     await carregarTrilha();
@@ -82,14 +104,14 @@ async function enviarQuiz() {
     quizEstado.erro = erro.message || 'Sem conexão. Tente de novo.';
   }
   quizEstado.enviando = false;
-  conteudo.innerHTML = quizEstado.resultado ? telaResultado(quizEstado.resultado) : telaQuiz(quiz, quizEstado);
+  desenhar(quizEstado.resultado ? telaResultado(quizEstado.resultado) : telaQuiz(quiz, quizEstado));
 }
 
 function cliqueNoQuiz(acao) {
   if (acao === 'ant' && quizEstado.indice > 0) quizEstado.indice -= 1;
   else if (acao === 'prox' && quizEstado.indice < quiz.perguntas.length - 1) quizEstado.indice += 1;
   else if (acao === 'prox') { enviarQuiz(); return; }
-  conteudo.innerHTML = telaQuiz(quiz, quizEstado);
+  desenhar(telaQuiz(quiz, quizEstado));
   document.getElementById('perguntaTitulo').focus({ preventScroll: true });
 }
 
@@ -100,23 +122,40 @@ function mostrarPopup() {
 }
 
 function desenharCard() {
+  if (cardAberto.extra) {
+    dialogoConteudo.innerHTML = popupCard({ ...cardAberto, dados: LEITURA_EXTRA, assunto: extraPorId(cardAberto.assuntoId) });
+    return;
+  }
   const assunto = assuntoPorId(cardAberto.assuntoId);
   dialogoConteudo.innerHTML = popupCard({ dados, assunto, ...cardAberto });
 }
 
-function abrirCard(assuntoId, indice) {
-  cardAberto = { assuntoId, indice: Number(indice), aviso: '', salvando: false };
+function abrirCard(assuntoId, indice, extra = false) {
+  if (extra && !extraPorId(assuntoId)) return;
+  cardAberto = { assuntoId, indice: Number(indice), aviso: '', salvando: false, extra };
   desenharCard();
   mostrarPopup();
 }
 
-function abrirGuia() {
+function alternarExtra(botao) {
+  const id = botao.dataset.extraAlternar;
+  const abrir = botao.getAttribute('aria-expanded') !== 'true';
+  botao.setAttribute('aria-expanded', String(abrir));
+  document.getElementById(`extra_${id}`).hidden = !abrir;
+  if (abrir) extrasAbertos.add(id);
+  else extrasAbertos.delete(id);
+}
+
+function abrirGuia(indice) {
+  const guia = dados.guias_rapidos[Number(indice)];
+  if (!guia) return;
   cardAberto = null;
-  dialogoConteudo.innerHTML = popupGuia(dados.guia_rapido);
+  dialogoConteudo.innerHTML = popupGuia(guia);
   mostrarPopup();
 }
 
 async function concluirCard() {
+  if (dados.modo_visualizacao || cardAberto.extra) return;
   const assunto = assuntoPorId(cardAberto.assuntoId);
   const card = assunto.cards[cardAberto.indice];
   cardAberto.salvando = true;
@@ -144,8 +183,10 @@ document.addEventListener('click', (e) => {
   if (link) { e.preventDefault(); ir(link.getAttribute('href').slice(1)); return; }
   if (alvo('[data-ir]')) { ir(alvo('[data-ir]').dataset.ir); return; }
   if (alvo('[data-recarregar]')) { init(); return; }
-  if (alvo('[data-socorro]')) { abrirGuia(); return; }
+  if (alvo('[data-socorro]')) { abrirGuia(alvo('[data-socorro]').dataset.socorro); return; }
   if (alvo('[data-abrir]')) { abrirCard(...alvo('[data-abrir]').dataset.abrir.split(':')); return; }
+  if (alvo('[data-abrir-extra]')) { abrirCard(...alvo('[data-abrir-extra]').dataset.abrirExtra.split(':'), true); return; }
+  if (alvo('[data-extra-alternar]')) { alternarExtra(alvo('[data-extra-alternar]')); return; }
   if (alvo('[data-concluir]')) { concluirCard(); return; }
   if (alvo('[data-quiz-pronto]')) { dialogo.close(); ir('trilha'); return; }
   if (alvo('[data-fechar]')) { dialogo.close(); return; }
@@ -178,7 +219,7 @@ window.addEventListener('popstate', () => { destino = destinoDoEndereco(); mostr
 async function init() {
   if (!(await iniciarAreaLogada('trilha'))) return;
   try {
-    await carregarTrilha();
+    await Promise.all([carregarTrilha(), carregarExtras()]);
   } catch (erro) {
     mostrarErro(erro.message || 'Sem conexão com o servidor.');
     return;

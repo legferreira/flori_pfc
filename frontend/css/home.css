@@ -107,16 +107,6 @@
   flex-shrink: 0;
 }
 
-.flori-breve {
-  font-size: 0.68rem;
-  font-weight: 600;
-  line-height: 1;
-  padding: 0.25rem 0.5rem;
-  border-radius: 999px;
-  background-color: #f1ecf6;
-  color: #5b4d73;
-}
-
 @media (max-width: 767px) {
   .flori-nav {
     position: fixed;
@@ -140,10 +130,6 @@
     font-size: 0.75rem;
     text-align: center;
   }
-  .flori-breve {
-    font-size: 0.6rem;
-    padding: 0.15rem 0.4rem;
-  }
 }
 
 .flori-main {
@@ -153,7 +139,7 @@
 }
 
 @media (max-width: 767px) {
-  .flori-main { padding-bottom: 7rem; }
+  .flori-main { padding-bottom: 1.5rem; }
 }
 
 .flori-titulo {
@@ -225,3 +211,72 @@
 .flori-usuario-link[aria-current="page"] .flori-usuario-nome {
   text-decoration: underline;
 }
+
+.flori-aviso-documentos {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 12px;
+  background-color: #f6f2f9;
+  font-size: 0.88rem;
+}
+
+.flori-aviso-documentos a { color: var(--flori-title); font-weight: 600; }
+
+.flori-aviso-acoes {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.5rem;
+}
+
+.flori-aviso-acoes .btn { width: auto; }
+
+.flori-aviso-erro {
+  display: block;
+  margin-top: 0.25rem;
+  color: #b3261e;
+}
+
+@media (max-width: 600px) {
+  .flori-aviso-documentos { flex-direction: column; align-items: flex-start; }
+}
+
+.flori-saude-acoes { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem; }
+
+.flori-saude-acoes .btn { width: auto; }
+
+.flori-saude-lista { padding-left: 1.1rem; font-size: 0.92rem; }
+
+.flori-saude-lista li + li { margin-top: 0.35rem; }
+
+.flori-saude-modal { max-width: 480px; }
+
+.flori-saude-opcoes { display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0 0.5rem; }
+
+.flori-saude-depois {
+  display: block;
+  margin: 0.5rem auto 0;
+  border: none;
+  background: none;
+  color: var(--flori-title);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.btn.flori-btn-perigo-contorno {
+  border: 1.5px solid #a3342b;
+  border-radius: 12px;
+  background-color: #ffffff;
+  color: #a3342b;
+  font-weight: 600;
+}
+
+.btn.flori-btn-perigo-contorno:hover { background-color: #fbeceb; color: #a3342b; }
+
+.flori-erro-campo { display: block; margin-top: 0.25rem; color: #a3342b; font-size: 0.8rem; font-weight: 600; }
+
+.flori-saude-perfil { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }

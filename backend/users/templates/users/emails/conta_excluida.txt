@@ -1,0 +1,8 @@
+{% autoescape off %}Oi, {{ apelido }}!
+
+{% if pelo_admin %}Sua conta no Flori foi excluída pela administração. Seus dados de cadastro, progresso, quiz e certificado foram apagados.{% else %}Confirmamos que a sua conta no Flori foi excluída, a seu pedido.{% endif %}
+
+Não foi você? Fale com a gente pelo canal de privacidade indicado na Política de Privacidade do Flori.
+
+Flori
+{% endautoescape %}

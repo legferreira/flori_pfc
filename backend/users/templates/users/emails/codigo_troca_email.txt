@@ -1,0 +1,12 @@
+{% autoescape off %}Oi, {{ apelido }}!
+
+Recebemos um pedido para usar este endereço como email da sua conta no Flori. Para confirmar, use este código:
+
+    {{ codigo }}
+
+O código vale por {{ validade_minutos }} minutos e só pode ser usado uma vez.
+
+Não foi você? Ignore este email, nada muda.
+
+Flori
+{% endautoescape %}

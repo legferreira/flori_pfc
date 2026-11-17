@@ -34,6 +34,41 @@ h1, h2, h3, .flori-heading {
   min-height: 44px;
 }
 
+.flori-rodape {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 1.25rem;
+  padding: 1.25rem 1rem 1.5rem;
+  font-size: 0.8rem;
+}
+
+.flori-rodape a {
+  color: #6b6b6b;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.flori-rodape a:hover {
+  color: var(--flori-title);
+}
+
+.flori-rodape-landing {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+}
+
+.flori-landing:has(.flori-rodape-landing) {
+  padding-bottom: 4.5rem;
+}
+
+@media (max-width: 767px) {
+  .flori-rodape-logado { padding-bottom: calc(5.5rem + env(safe-area-inset-bottom)); }
+}
+
 .flori-nav-back:hover {
   color: var(--flori-title);
   opacity: 0.75;

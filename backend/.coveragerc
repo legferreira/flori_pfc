@@ -1,0 +1,15 @@
+[run]
+source = .
+omit =
+    */migrations/*
+    */tests*.py
+    manage.py
+    venv/*
+    */__init__.py
+
+[report]
+show_missing = True
+skip_empty = True
+
+[html]
+directory = ../coverage_html

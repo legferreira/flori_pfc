@@ -9,5 +9,5 @@ O link vale por {{ validade_minutos }} minutos e só pode ser usado uma vez.
 
 Não foi você? Pode ignorar este e-mail: sua senha atual continua a mesma.
 
-— Flori
+Um abraço, Flori
 {% endautoescape %}

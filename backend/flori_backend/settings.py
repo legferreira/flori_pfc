@@ -1,13 +1,30 @@
 import os
+
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 load_dotenv()
 
 
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-somente-para-desenvolvimento-local')
+def _lista(nome, padrao=''):
+    return [item.strip() for item in os.getenv(nome, padrao).split(',') if item.strip()]
 
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = [h for h in os.getenv('ALLOWED_HOSTS', '').split(',') if h]
+def _inteiro(nome, padrao):
+    try:
+        return int(os.getenv(nome, '') or padrao)
+    except ValueError:
+        raise ImproperlyConfigured(f'{nome} precisa ser um número inteiro.')
+
+
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
+
+SECRET_KEY = os.getenv('SECRET_KEY', '').strip()
+if not SECRET_KEY:
+    if not DEBUG:
+        raise ImproperlyConfigured('Defina SECRET_KEY no .env.')
+    SECRET_KEY = 'django-insecure-somente-para-desenvolvimento-local'
+
+ALLOWED_HOSTS = _lista('ALLOWED_HOSTS')
 
 
 INSTALLED_APPS = [
@@ -20,6 +37,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'users',
     'trilha',
+    'administracao',
+    'diario',
 ]
 
 MIDDLEWARE = [
@@ -32,7 +51,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-CORS_ALLOW_ALL_ORIGINS = True
 ROOT_URLCONF = 'flori_backend.urls'
 
 TEMPLATES = [
@@ -74,6 +92,25 @@ BREVO_API_KEY = os.getenv('BREVO_API_KEY', '').strip()
 BREVO_REMETENTE_EMAIL = os.getenv('BREVO_REMETENTE_EMAIL', '').strip()
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://127.0.0.1:5500').rstrip('/')
 FIREBASE_PROJECT_ID = os.getenv('FIREBASE_PROJECT_ID', 'flori-1742a').strip()
+
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = _lista('CORS_ALLOWED_ORIGINS', FRONTEND_URL)
+
+CONFIA_EM_X_FORWARDED_FOR = os.getenv('CONFIA_EM_X_FORWARDED_FOR', 'False') == 'True'
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    if CONFIA_EM_X_FORWARDED_FOR:
+        SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+LOG_RETENCAO_DIAS = _inteiro('LOG_RETENCAO_DIAS', 365)
+LOG_RETENCAO_ADMIN_DIAS = _inteiro('LOG_RETENCAO_ADMIN_DIAS', 1825)
+CONSENTIMENTO_RETENCAO_DIAS = _inteiro('CONSENTIMENTO_RETENCAO_DIAS', 1825)
 
 
 AUTH_PASSWORD_VALIDATORS = [

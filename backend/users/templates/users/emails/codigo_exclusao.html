@@ -1,0 +1,33 @@
+{% extends 'users/emails/base.html' %}
+
+{% block titulo_pagina %}Código para excluir sua conta no Flori{% endblock %}
+
+{% block preheader %}Use este código para confirmar a exclusão da sua conta. Ele vale por {{ validade_minutos }} minutos.{% endblock %}
+
+{% block titulo %}Oi, {{ apelido }}! Aqui está o código para excluir sua conta{% endblock %}
+
+{% block conteudo %}
+Recebemos um pedido para excluir a sua conta no Flori. Para confirmar, digite este código na tela de perfil:
+{% endblock %}
+
+{% block botao %}{% endblock %}
+
+{% block depois_do_botao %}
+<tr>
+  <td align="center" style="padding:0 32px 24px;">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td align="center" style="background-color:#FDFBF5; border:2px dashed #EDBFD8; border-radius:16px; padding:18px 28px; font-family:'Courier New', Courier, monospace; font-size:36px; font-weight:700; letter-spacing:10px; color:#3E2F59;">
+          {{ codigo }}
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+{% endblock %}
+
+{% block nota_final %}
+<strong style="color:#3E2F59;">Não foi você?</strong> Ignore este email, sua conta continua ativa. O código vale por {{ validade_minutos }} minutos.
+{% endblock %}
+
+{% block rodape %}Você recebeu este email porque pediram a exclusão da sua conta do Flori.{% endblock %}

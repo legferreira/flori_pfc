@@ -158,25 +158,21 @@ ASSUNTOS = [{'ordem': 1,
                     'você.',
              'fontes': ['sbp84', 'sbpColica', 'spsp', 'unicef']}]}]
 
-GUIA_RAPIDO = {'titulo': 'Menstruei, e agora?',
+GUIA_RAPIDO = {'codigo': 'G1',
+ 'titulo': 'Menstruei, e agora?',
  'introducao': 'Calma, isso é normal e você não precisa resolver tudo sem ajuda. Um passo de cada vez:',
- 'passos': [{'titulo': 'Respire, é normal.',
-             'descricao': 'Menstruar é um processo natural do corpo. Você não fez nada de errado.'},
-            {'titulo': 'Procure um adulto de confiança.',
-             'descricao': 'Pode ser mãe, pai, responsável ou uma pessoa da escola em quem você confia. Se '
-                          'não houver ninguém por perto, vá a um posto de saúde (UBS).'},
-            {'titulo': 'Consiga um absorvente.',
-             'descricao': 'Peça a alguém de confiança ou na escola. O Programa Dignidade Menstrual oferece '
-                          'absorventes gratuitos para quem tem direito.'},
-            {'titulo': 'Cuide da higiene.',
-             'descricao': 'Lave a região externa com água e sabonete de pH neutro e troque o absorvente com '
-                          'frequência.'},
-            {'titulo': 'Anote a data.',
-             'descricao': 'O primeiro dia da menstruação ajuda a contar o ciclo. Em breve, o diário do corpo '
-                          'guarda isso para você.'},
-            {'titulo': 'Fique de olho nos sinais de alerta.',
-             'descricao': 'Dor muito forte, sangramento intenso ou dúvidas? Converse com um adulto e procure '
-                          'um profissional de saúde.'}],
+ 'passos': [
+     'Respire, é normal. Menstruar é um processo natural do corpo. Você não fez nada de errado.',
+     'Procure um adulto de confiança. Pode ser mãe, pai, responsável ou uma pessoa da escola em quem '
+     'você confia. Se não houver ninguém por perto, vá a um posto de saúde (UBS).',
+     'Consiga um absorvente. Peça a alguém de confiança ou na escola. O Programa Dignidade Menstrual '
+     'oferece absorventes gratuitos para quem tem direito.',
+     'Cuide da higiene. Lave a região externa com água e sabonete de pH neutro e troque o absorvente '
+     'com frequência.',
+     'Anote a data. O primeiro dia da menstruação ajuda a contar o ciclo, e o diário do corpo, aqui no '
+     'Flori, guarda isso para você.',
+     'Fique de olho nos sinais de alerta. Dor muito forte, sangramento intenso ou dúvidas? Converse '
+     'com um adulto e procure um profissional de saúde.'],
  'fontes': ['uff', 'spsp', 'dignidade']}
 
 PERGUNTAS = [{'codigo': 'Q01',

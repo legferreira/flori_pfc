@@ -177,7 +177,7 @@ class LoginDoisFatoresTests(TestCase):
         self.assertEqual(resposta.status_code, 200)
         self.assertTrue(dados['requer_codigo'])
         self.assertNotIn('token', dados)
-        self.assertEqual(dados['email_mascarado'], 'an*@exemplo.com')
+        self.assertEqual(dados['email_mascarado'], 'an****@exemplo.com')
         self.assertFalse(Token.objects.exists())
         codigo = self.codigo_enviado(notificacao)
         self.assertRegex(codigo, r'^\d{6}$')
@@ -437,7 +437,7 @@ class PerfilTests(TestCase):
         )
         self.usuario.definir_senha('senha12345')
         self.usuario.save()
-        for tipo in Consentimento.Tipo.values:
+        for tipo in Consentimento.DOCUMENTOS:
             Consentimento.objects.create(usuario=self.usuario, tipo=tipo, versao_documento='1.0', aceito=True)
         self.auth = {'HTTP_AUTHORIZATION': f'Bearer {Token.objects.create(usuario=self.usuario).chave}'}
 
