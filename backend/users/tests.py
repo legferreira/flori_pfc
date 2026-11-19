@@ -7,10 +7,10 @@ from django.utils import timezone
 from .models import CodigoAutenticacao, Consentimento, LogAtividade, SolicitacaoRedefinicaoSenha, Token, Usuario
 
 
-def criar_usuario(senha='senha12345', **extra):
+def criar_usuario(senha='senha12345', email='ana@exemplo.com', **extra):
     usuario = Usuario(
         nome='Ana', sobrenome='Souza', apelido='ana',
-        data_nascimento='10/04/1995', email='ana@exemplo.com', **extra,
+        data_nascimento='10/04/1995', email=email, **extra,
     )
     usuario.definir_senha(senha)
     usuario.save()
@@ -401,9 +401,22 @@ class CadastroNoMySQLTests(TestCase):
         self.assertEqual(Usuario.objects.get().apelido, 'Bia 🌸')
 
     def test_email_com_acento_e_outra_conta(self, notificacao):
-        self.assertEqual(self.cadastrar(email='joão@exemplo.com').status_code, 201)
+        criar_usuario(email='joão@exemplo.com')
         self.assertFalse(Usuario.objects.filter(email='joao@exemplo.com').exists())
         self.assertEqual(self.cadastrar(email='joao@exemplo.com').status_code, 201)
+
+    def test_email_com_formato_invalido(self, notificacao):
+        for email in ('ana', 'ana@', '@exemplo.com', 'ana@exemplo', 'ana exemplo@exemplo.com', 'joão@exemplo.com'):
+            with self.subTest(email=email):
+                resposta = self.cadastrar(email=email)
+                self.assertEqual(resposta.status_code, 400)
+                self.assertEqual(resposta.json()['mensagem'], 'Informe um e-mail válido.')
+        self.assertFalse(Usuario.objects.exists())
+        notificacao.assert_not_called()
+
+    def test_email_valido_e_gravado_em_minusculas(self, notificacao):
+        self.assertEqual(self.cadastrar(email='  Bia.Lima+flori@Exemplo.com.br ').status_code, 201)
+        self.assertEqual(Usuario.objects.get().email, 'bia.lima+flori@exemplo.com.br')
 
 
 class SessaoTests(TestCase):

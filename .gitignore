@@ -27,3 +27,6 @@ desktop.ini
 # Cobertura de testes
 coverage_html/
 .coverage
+
+# MySQL local de desenvolvimento (dados e log)
+.mysql/

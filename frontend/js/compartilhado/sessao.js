@@ -1,3 +1,4 @@
+// Endereço da API usado por todo o front. Para publicar em outro domínio, mude só esta linha.
 const API_SESSAO = 'http://127.0.0.1:8000/api';
 
 function concluirLogin(resultado) {

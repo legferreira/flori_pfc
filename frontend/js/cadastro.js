@@ -196,7 +196,7 @@ form.addEventListener('submit', async (e) => {
   botaoAvancar.textContent = 'Criando sua conta...';
 
   try {
-    const resposta = await fetch('http://127.0.0.1:8000/api/usuarios', {
+    const resposta = await fetch(`${API_SESSAO}/usuarios`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -234,7 +234,7 @@ async function cadastrarComGoogle() {
   botaoAvancar.textContent = 'Criando sua conta...';
 
   try {
-    const resposta = await fetch('http://127.0.0.1:8000/api/usuarios/google', {
+    const resposta = await fetch(`${API_SESSAO}/usuarios/google`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

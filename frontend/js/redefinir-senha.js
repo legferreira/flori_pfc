@@ -37,7 +37,7 @@ formRedefinir.addEventListener('submit', async (e) => {
   botaoSalvar.textContent = 'Salvando...';
 
   try {
-    const resposta = await fetch('http://127.0.0.1:8000/api/resetar-senha/confirmar', {
+    const resposta = await fetch(`${API_SESSAO}/resetar-senha/confirmar`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token, senha })

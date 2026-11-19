@@ -175,6 +175,10 @@ class CadastroUsuario:
             raise ErroCadastro('E-mail é obrigatório.')
         if len(self.email) > TAMANHO_MAXIMO_EMAIL:
             raise ErroCadastro(f'E-mail muito longo (máximo {TAMANHO_MAXIMO_EMAIL} caracteres).')
+        try:
+            validate_email(self.email)
+        except ValidationError:
+            raise ErroCadastro('Informe um e-mail válido.')
         if self.celular and len(self.celular) > TAMANHO_MAXIMO_CELULAR:
             raise ErroCadastro(f'Celular muito longo (máximo {TAMANHO_MAXIMO_CELULAR} caracteres).')
 

@@ -66,7 +66,7 @@ formVerificar.addEventListener('submit', async (e) => {
   botaoVerificar.textContent = 'Verificando...';
 
   try {
-    const resposta = await fetch('http://127.0.0.1:8000/api/login/verificar', {
+    const resposta = await fetch(`${API_SESSAO}/login/verificar`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ desafio: pendente.desafio, codigo })

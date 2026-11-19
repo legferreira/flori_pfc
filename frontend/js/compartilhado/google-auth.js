@@ -31,7 +31,7 @@ export async function continuarComGoogle() {
 
   let resposta;
   try {
-    resposta = await fetch('http://127.0.0.1:8000/api/login/google', {
+    resposta = await fetch(`${API_SESSAO}/login/google`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id_token: idToken })
