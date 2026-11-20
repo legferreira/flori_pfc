@@ -1,16 +1,25 @@
+import os
+
 import django.db.models.deletion
 import django.utils.timezone
 import uuid
 from django.db import migrations, models
 
 
+def _triggers_ativos(schema_editor):
+    return (
+        schema_editor.connection.vendor == 'mysql'
+        and os.getenv('DB_TRIGGERS', 'True') == 'True'
+    )
+
+
 class RunSQLSomenteMySQL(migrations.RunSQL):
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
-        if schema_editor.connection.vendor == 'mysql':
+        if _triggers_ativos(schema_editor):
             super().database_forwards(app_label, schema_editor, from_state, to_state)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
-        if schema_editor.connection.vendor == 'mysql':
+        if _triggers_ativos(schema_editor):
             super().database_backwards(app_label, schema_editor, from_state, to_state)
 
 
